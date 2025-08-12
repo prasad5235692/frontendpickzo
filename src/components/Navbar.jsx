@@ -28,43 +28,42 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <div
-          className="text-2xl font-bold cursor-pointer flex-shrink-0 mr-4"
+          className="text-2xl font-bold cursor-pointer flex-shrink-0 mr-6"
           onClick={() => navigate("/")}
         >
           PickZo
         </div>
 
         {/* Search bar */}
-        {/* Search bar */}
-<form
-  onSubmit={handleSearch}
-  className="flex flex-grow max-w-5xl mx-4 min-w-0"  // increased max-w to 5xl (~80rem)
->
-  <input
-    type="text"
-    placeholder="Search for products, brands and more"
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-full rounded-l-md px-3 py-2 text-black focus:outline-none min-w-0"
-  />
-  <button
-    type="submit"
-    className="bg-yellow-400 px-4 rounded-r-md flex items-center justify-center hover:bg-yellow-500 transition flex-shrink-0"
-    aria-label="Search"
-  >
-    <FaSearch />
-  </button>
-</form>
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-grow max-w-4xl mx-4 min-w-0"
+        >
+          <input
+            type="text"
+            placeholder="Search for products, brands and more"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-l-md px-4 py-2 text-black focus:outline-none min-w-0"
+          />
+          <button
+            type="submit"
+            className="bg-yellow-400 px-5 rounded-r-md flex items-center justify-center hover:bg-yellow-500 transition flex-shrink-0"
+            aria-label="Search"
+          >
+            <FaSearch size={18} />
+          </button>
+        </form>
 
-        {/* Desktop menu */}
-        <div className="hidden md:flex items-center space-x-6 flex-shrink-0">
+        {/* User & Cart */}
+        <div className="hidden md:flex items-center space-x-6 flex-shrink-0 text-white font-semibold">
           {username ? (
             <>
               <button
                 onClick={() => navigate("/profile")}
                 className="flex items-center space-x-2 hover:text-yellow-300"
               >
-                <FaUser />
+                <FaUser size={18} />
                 <span>{username}</span>
               </button>
 
@@ -77,16 +76,16 @@ const Navbar = () => {
                     navigate("/login");
                   }
                 }}
-                className="relative hover:text-yellow-300 flex items-center space-x-1"
+                className="relative hover:text-yellow-300 flex items-center space-x-2"
                 aria-label="Cart"
               >
-                <FaShoppingCart />
+                <FaShoppingCart size={18} />
+                <span>Cart</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-red-500 text-xs px-1 rounded-full font-bold">
+                  <span className="absolute -top-2 -right-4 bg-red-500 text-xs px-1 rounded-full font-bold select-none">
                     {cartCount}
                   </span>
                 )}
-                <span>Cart</span>
               </button>
             </>
           ) : (
@@ -94,7 +93,7 @@ const Navbar = () => {
               onClick={() => navigate("/login")}
               className="flex items-center space-x-2 hover:text-yellow-300"
             >
-              <FaUser />
+              <FaUser size={18} />
               <span>Login</span>
             </button>
           )}
@@ -102,7 +101,7 @@ const Navbar = () => {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden text-white text-xl focus:outline-none flex-shrink-0"
+          className="md:hidden text-white text-2xl focus:outline-none flex-shrink-0"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
