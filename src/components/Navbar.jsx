@@ -9,27 +9,17 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Fetch user and cart count
   useEffect(() => {
     setUsername(localStorage.getItem("username"));
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartCount(cart.length);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    localStorage.removeItem("token");
-    setUsername(null);
-    setCartCount(0);
-    navigate("/login");
-  };
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
-      setMenuOpen(false); // close menu on mobile after search
+      setMenuOpen(false);
     }
   };
 
@@ -73,12 +63,7 @@ const Navbar = () => {
                 <FaUser />
                 <span>{username}</span>
               </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-semibold transition"
-              >
-                Logout
-              </button>
+
               <button
                 onClick={() => {
                   const userId = localStorage.getItem("userId");
@@ -136,15 +121,7 @@ const Navbar = () => {
                 <FaUser />
                 <span>{username}</span>
               </button>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setMenuOpen(false);
-                }}
-                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-semibold w-full text-left transition"
-              >
-                Logout
-              </button>
+
               <button
                 onClick={() => {
                   const userId = localStorage.getItem("userId");
