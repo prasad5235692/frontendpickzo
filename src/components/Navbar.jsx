@@ -9,101 +9,67 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Fetch user and cart count on mount
   useEffect(() => {
-    const user = localStorage.getItem("username");
-    setUsername(user);
+    setUsername(localStorage.getItem("username"));
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartCount(cart.length);
   }, []);
 
-  // Update cart count if cart changes elsewhere (optional)
-  useEffect(() => {
-    function onStorageChange() {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      setCartCount(cart.length);
-    }
-    window.addEventListener("storage", onStorageChange);
-    return () => window.removeEventListener("storage", onStorageChange);
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    localStorage.removeItem("token");
-    localStorage.removeItem("cart"); // Optional: clear cart on logout
-    setUsername(null);
-    setCartCount(0);
-    setMenuOpen(false); // close mobile menu on logout
-    navigate("/login");
-  };
-
   const handleSearch = (e) => {
     e.preventDefault();
-    const trimmed = searchTerm.trim();
-    if (trimmed) {
-      navigate(`/products?search=${encodeURIComponent(trimmed)}`);
+    if (searchTerm.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
       setMenuOpen(false);
     }
   };
 
   return (
-    <nav className="bg-blue-600 text-white fixed w-full top-0 z-50 shadow-md">
-      <div className="container mx-auto px-4 sm:px-8 flex items-center justify-between h-16">
+    <nav className="bg-white fixed top-0 left-0 w-full shadow-md z-50">
+      <div className="container mx-auto px-5 md:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <div
-          className="text-2xl font-extrabold cursor-pointer flex-shrink-0 select-none hover:text-yellow-400 transition"
-          onClick={() => {
-            navigate("/");
-            setMenuOpen(false);
-          }}
+          onClick={() => navigate("/")}
+          className="text-gray-800 font-serif font-bold text-3xl cursor-pointer select-none"
+          aria-label="Homepage"
         >
           PickZo
         </div>
 
-        {/* Search bar */}
+        {/* Search form */}
         <form
           onSubmit={handleSearch}
-          className="flex flex-grow max-w-xl mx-4 min-w-0"
+          className="flex flex-grow max-w-xl mx-6 relative"
           role="search"
-          aria-label="Product search"
         >
           <input
             type="text"
-            placeholder="Search for products, brands and more"
+            placeholder="Search products, brands, and more..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-l-md px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 min-w-0"
+            className="w-full border border-gray-300 rounded-l-md py-2 px-4 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
           <button
             type="submit"
-            className="bg-yellow-400 px-4 rounded-r-md flex items-center justify-center hover:bg-yellow-500 transition flex-shrink-0"
             aria-label="Search"
+            className="bg-blue-600 text-white px-4 rounded-r-md hover:bg-blue-700 transition"
           >
             <FaSearch />
           </button>
         </form>
 
         {/* Desktop menu */}
-        <div className="hidden md:flex items-center space-x-8 flex-shrink-0">
+        <div className="hidden md:flex items-center space-x-8">
           {username ? (
             <>
               <button
                 onClick={() => navigate("/profile")}
-                className="flex items-center space-x-2 hover:text-yellow-300 transition font-medium focus:outline-none"
-                aria-label="User profile"
-                title={`Logged in as ${username}`}
+                className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition font-medium"
+                title="Profile"
               >
                 <FaUser />
-                <span className="truncate max-w-xs">{username}</span>
+                <span className="max-w-xs truncate">{username}</span>
               </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-semibold transition focus:outline-none"
-                aria-label="Logout"
-              >
-                Logout
-              </button>
+
               <button
                 onClick={() => {
                   const userId = localStorage.getItem("userId");
@@ -113,23 +79,22 @@ const Navbar = () => {
                     navigate("/login");
                   }
                 }}
-                className="relative hover:text-yellow-300 flex items-center space-x-1 transition font-medium focus:outline-none"
+                className="relative flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition font-medium"
                 aria-label="Cart"
               >
                 <FaShoppingCart />
+                <span>Cart</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-red-500 text-xs px-1 rounded-full font-bold select-none">
+                  <span className="absolute -top-2 -right-3 bg-red-600 text-xs font-bold rounded-full px-1 select-none">
                     {cartCount}
                   </span>
                 )}
-                <span>Cart</span>
               </button>
             </>
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center space-x-2 hover:text-yellow-300 transition font-medium focus:outline-none"
-              aria-label="Login"
+              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition font-medium"
             >
               <FaUser />
               <span>Login</span>
@@ -137,72 +102,90 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile Hamburger */}
         <button
-          className="md:hidden text-white text-2xl focus:outline-none flex-shrink-0"
+          className="md:hidden text-gray-700 text-2xl focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
+          aria-label="Toggle menu"
         >
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
 
       {/* Mobile menu */}
-     
-      {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-blue-700 px-4 py-5 space-y-4 shadow-lg border-t border-blue-500">
-          {username ? (
-            <>
+        <div className="md:hidden bg-white border-t border-gray-200 shadow-inner">
+          <form
+            onSubmit={handleSearch}
+            className="flex mx-4 my-3"
+            role="search"
+          >
+            <input
+              type="text"
+              placeholder="Search products, brands, and more..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-grow border border-gray-300 rounded-l-md py-2 px-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              className="bg-blue-600 text-white px-4 rounded-r-md hover:bg-blue-700 transition"
+            >
+              <FaSearch />
+            </button>
+          </form>
+
+          <div className="flex flex-col space-y-3 px-5 py-4">
+            {username ? (
+              <>
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setMenuOpen(false);
+                  }}
+                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition font-medium"
+                >
+                  <FaUser />
+                  <span className="truncate">{username}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    const userId = localStorage.getItem("userId");
+                    if (userId) {
+                      navigate("/cart");
+                      setMenuOpen(false);
+                    } else {
+                      alert("Please login first!");
+                      navigate("/login");
+                      setMenuOpen(false);
+                    }
+                  }}
+                  className="relative flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition font-medium"
+                >
+                  <FaShoppingCart />
+                  <span>Cart</span>
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-600 text-xs font-bold rounded-full px-1 select-none">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </>
+            ) : (
               <button
                 onClick={() => {
-                  navigate("/profile");
+                  navigate("/login");
                   setMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 hover:text-yellow-300 w-full text-left font-semibold"
+                className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition font-medium"
               >
                 <FaUser />
-                <span className="truncate">{username}</span>
+                <span>Login</span>
               </button>
-
-              {/* Logout button removed */}
-
-              <button
-                onClick={() => {
-                  const userId = localStorage.getItem("userId");
-                  if (userId) {
-                    navigate("/cart");
-                    setMenuOpen(false);
-                  } else {
-                    alert("Please login first!");
-                    navigate("/login");
-                    setMenuOpen(false);
-                  }
-                }}
-                className="relative hover:text-yellow-300 flex items-center space-x-2 w-full text-left font-semibold"
-              >
-                <FaShoppingCart />
-                <span>Cart</span>
-                {cartCount > 0 && (
-                  <span className="absolute top-1 right-4 bg-red-500 text-xs px-1 rounded-full font-bold select-none">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => {
-                navigate("/login");
-                setMenuOpen(false);
-              }}
-              className="flex items-center space-x-2 hover:text-yellow-300 w-full text-left font-semibold"
-            >
-              <FaUser />
-              <span>Login</span>
-            </button>
-          )}
+            )}
+          </div>
         </div>
       )}
     </nav>
