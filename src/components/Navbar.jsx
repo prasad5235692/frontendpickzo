@@ -1,11 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  FaShoppingCart,
-  FaUser,
-  FaSearch,
-  FaBars,
-  FaTimes,
-} from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaShoppingCart, FaUser, FaSearch, FaBars, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -14,176 +8,151 @@ const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const userDropdownRef = useRef();
 
+  // Fetch user and cart count on mount
   useEffect(() => {
-    setUsername(localStorage.getItem("username"));
+    const user = localStorage.getItem("username");
+    setUsername(user);
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartCount(cart.length);
   }, []);
 
-  // Close user dropdown when clicking outside
+  // Update cart count if cart changes elsewhere (optional)
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        userDropdownRef.current &&
-        !userDropdownRef.current.contains(event.target)
-      ) {
-        setUserDropdownOpen(false);
-      }
-    };
-    if (userDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+    function onStorageChange() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartCount(cart.length);
     }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [userDropdownOpen]);
+    window.addEventListener("storage", onStorageChange);
+    return () => window.removeEventListener("storage", onStorageChange);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
+    localStorage.removeItem("token");
+    localStorage.removeItem("cart"); // Optional: clear cart on logout
+    setUsername(null);
+    setCartCount(0);
+    setMenuOpen(false); // close mobile menu on logout
+    navigate("/login");
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
+    const trimmed = searchTerm.trim();
+    if (trimmed) {
+      navigate(`/products?search=${encodeURIComponent(trimmed)}`);
       setMenuOpen(false);
-      setUserDropdownOpen(false);
     }
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-500 to-blue-700 text-white fixed w-full top-0 z-50 shadow-lg">
-      <div className="container mx-auto px-6 flex items-center justify-between h-16">
+    <nav className="bg-blue-600 text-white fixed w-full top-0 z-50 shadow-md">
+      <div className="container mx-auto px-4 sm:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <div
-          onClick={() => navigate("/")}
-          className="text-3xl font-extrabold cursor-pointer select-none tracking-wide"
-          aria-label="Homepage"
+          className="text-2xl font-extrabold cursor-pointer flex-shrink-0 select-none hover:text-yellow-400 transition"
+          onClick={() => {
+            navigate("/");
+            setMenuOpen(false);
+          }}
         >
           PickZo
         </div>
 
-        {/* Search */}
+        {/* Search bar */}
         <form
           onSubmit={handleSearch}
-          className="flex flex-grow max-w-2xl mx-6 min-w-0"
+          className="flex flex-grow max-w-xl mx-4 min-w-0"
           role="search"
+          aria-label="Product search"
         >
           <input
-            type="search"
-            placeholder="Search products, brands and more"
+            type="text"
+            placeholder="Search for products, brands and more"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-grow rounded-l-md px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm"
+            className="w-full rounded-l-md px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 min-w-0"
           />
           <button
             type="submit"
+            className="bg-yellow-400 px-4 rounded-r-md flex items-center justify-center hover:bg-yellow-500 transition flex-shrink-0"
             aria-label="Search"
-            className="bg-yellow-400 hover:bg-yellow-500 px-5 rounded-r-md flex items-center justify-center transition-shadow shadow-md"
           >
-            <FaSearch className="text-gray-900" />
+            <FaSearch />
           </button>
         </form>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8 relative select-none">
+        {/* Desktop menu */}
+        <div className="hidden md:flex items-center space-x-8 flex-shrink-0">
           {username ? (
             <>
-              {/* User Dropdown */}
-              <div
-                className="relative"
-                ref={userDropdownRef}
-                tabIndex={0}
-                onBlur={() => setUserDropdownOpen(false)}
+              <button
+                onClick={() => navigate("/profile")}
+                className="flex items-center space-x-2 hover:text-yellow-300 transition font-medium focus:outline-none"
+                aria-label="User profile"
+                title={`Logged in as ${username}`}
               >
-                <button
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center space-x-2 hover:text-yellow-300 transition font-semibold focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
-                  aria-haspopup="true"
-                  aria-expanded={userDropdownOpen}
-                >
-                  <FaUser size={20} />
-                  <span className="max-w-[120px] truncate">{username}</span>
-                  <svg
-                    className={`w-4 h-4 ml-1 transition-transform duration-300 ${
-                      userDropdownOpen ? "rotate-180" : "rotate-0"
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
-
-                {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-900 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-2 z-50">
-                    <button
-                      onClick={() => {
-                        navigate("/profile");
-                        setUserDropdownOpen(false);
-                      }}
-                      className="block px-4 py-2 hover:bg-yellow-400 hover:text-white w-full text-left"
-                    >
-                      Profile
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        const userId = localStorage.getItem("userId");
-                        if (userId) navigate("/cart");
-                        else {
-                          alert("Please login first!");
-                          navigate("/login");
-                        }
-                        setUserDropdownOpen(false);
-                      }}
-                      className="block px-4 py-2 hover:bg-yellow-400 hover:text-white w-full text-left"
-                    >
-                      Cart {cartCount > 0 && `(${cartCount})`}
-                    </button>
-                  </div>
+                <FaUser />
+                <span className="truncate max-w-xs">{username}</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-semibold transition focus:outline-none"
+                aria-label="Logout"
+              >
+                Logout
+              </button>
+              <button
+                onClick={() => {
+                  const userId = localStorage.getItem("userId");
+                  if (userId) navigate("/cart");
+                  else {
+                    alert("Please login first!");
+                    navigate("/login");
+                  }
+                }}
+                className="relative hover:text-yellow-300 flex items-center space-x-1 transition font-medium focus:outline-none"
+                aria-label="Cart"
+              >
+                <FaShoppingCart />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-red-500 text-xs px-1 rounded-full font-bold select-none">
+                    {cartCount}
+                  </span>
                 )}
-              </div>
+                <span>Cart</span>
+              </button>
             </>
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center space-x-2 hover:text-yellow-300 font-semibold transition"
+              className="flex items-center space-x-2 hover:text-yellow-300 transition font-medium focus:outline-none"
+              aria-label="Login"
             >
-              <FaUser size={20} />
+              <FaUser />
               <span>Login</span>
             </button>
           )}
         </div>
 
-        {/* Mobile Hamburger */}
+        {/* Mobile hamburger */}
         <button
+          className="md:hidden text-white text-2xl focus:outline-none flex-shrink-0"
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden focus:outline-none"
-          aria-label="Toggle menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
         >
-          {menuOpen ? (
-            <FaTimes size={28} />
-          ) : (
-            <FaBars size={28} />
-          )}
+          {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
 
-      {/* Mobile Fullscreen Menu */}
+      {/* Mobile menu */}
+     
+      {/* Mobile menu */}
       {menuOpen && (
-        <div
-          className="fixed inset-0 bg-blue-800 bg-opacity-95 backdrop-blur-sm z-40 flex flex-col items-center justify-center space-y-8 text-white text-xl font-semibold"
-          role="dialog"
-          aria-modal="true"
-        >
+        <div className="md:hidden bg-blue-700 px-4 py-5 space-y-4 shadow-lg border-t border-blue-500">
           {username ? (
             <>
               <button
@@ -191,29 +160,32 @@ const Navbar = () => {
                   navigate("/profile");
                   setMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 hover:text-yellow-400 transition"
+                className="flex items-center space-x-3 hover:text-yellow-300 w-full text-left font-semibold"
               >
-                <FaUser size={24} />
-                <span>{username}</span>
+                <FaUser />
+                <span className="truncate">{username}</span>
               </button>
+
+              {/* Logout button removed */}
 
               <button
                 onClick={() => {
                   const userId = localStorage.getItem("userId");
                   if (userId) {
                     navigate("/cart");
+                    setMenuOpen(false);
                   } else {
                     alert("Please login first!");
                     navigate("/login");
+                    setMenuOpen(false);
                   }
-                  setMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 hover:text-yellow-400 transition relative"
+                className="relative hover:text-yellow-300 flex items-center space-x-2 w-full text-left font-semibold"
               >
-                <FaShoppingCart size={24} />
+                <FaShoppingCart />
                 <span>Cart</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-4 bg-red-600 text-xs px-2 rounded-full font-bold select-none">
+                  <span className="absolute top-1 right-4 bg-red-500 text-xs px-1 rounded-full font-bold select-none">
                     {cartCount}
                   </span>
                 )}
@@ -225,27 +197,12 @@ const Navbar = () => {
                 navigate("/login");
                 setMenuOpen(false);
               }}
-              className="flex items-center space-x-3 hover:text-yellow-400 transition"
+              className="flex items-center space-x-2 hover:text-yellow-300 w-full text-left font-semibold"
             >
-              <FaUser size={24} />
+              <FaUser />
               <span>Login</span>
             </button>
           )}
-
-          {/* Search bar inside mobile menu for easier access */}
-          <form
-            onSubmit={handleSearch}
-            className="w-full px-10"
-            role="search"
-          >
-            <input
-              type="search"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-full px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-md"
-            />
-          </form>
         </div>
       )}
     </nav>
