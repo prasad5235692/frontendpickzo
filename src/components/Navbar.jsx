@@ -9,67 +9,76 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Fetch user and cart count
   useEffect(() => {
     setUsername(localStorage.getItem("username"));
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartCount(cart.length);
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
+    localStorage.removeItem("token");
+    setUsername(null);
+    setCartCount(0);
+    navigate("/login");
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
-      setMenuOpen(false);
+      setMenuOpen(false); // close menu on mobile after search
     }
   };
 
   return (
-    <nav className="bg-blue-900 fixed top-0 left-0 w-full z-50 shadow-lg">
-      <div className="container mx-auto px-5 md:px-8 flex items-center justify-between h-16">
+    <nav className="bg-blue-600 text-white fixed w-full top-0 z-50 shadow-md">
+      <div className="container mx-auto px-4 sm:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <div
+          className="text-2xl font-bold cursor-pointer flex-shrink-0"
           onClick={() => navigate("/")}
-          className="text-yellow-400 font-serif font-extrabold text-3xl cursor-pointer select-none tracking-wide"
-          aria-label="Homepage"
         >
           PickZo
         </div>
 
-        {/* Search form - desktop */}
-        <form
-          onSubmit={handleSearch}
-          className="hidden md:flex flex-grow max-w-xl mx-6 relative"
-          role="search"
-        >
+        {/* Search bar */}
+        <form onSubmit={handleSearch} className="flex flex-grow max-w-xl mx-4 min-w-0">
           <input
             type="text"
-            placeholder="Search products, brands, and more..."
+            placeholder="Search for products, brands and more"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-l-md py-2 px-4 text-blue-900 placeholder-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-yellow-400"
+            className="w-full rounded-l-md px-3 py-2 text-black focus:outline-none min-w-0"
           />
           <button
             type="submit"
+            className="bg-yellow-400 px-4 rounded-r-md flex items-center justify-center hover:bg-yellow-500 transition flex-shrink-0"
             aria-label="Search"
-            className="bg-yellow-400 text-blue-900 px-5 rounded-r-md font-semibold hover:bg-yellow-300 transition"
           >
             <FaSearch />
           </button>
         </form>
 
         {/* Desktop menu */}
-        <div className="hidden md:flex items-center space-x-10 text-yellow-400 font-semibold">
+        <div className="hidden md:flex items-center space-x-6 flex-shrink-0">
           {username ? (
             <>
               <button
                 onClick={() => navigate("/profile")}
-                className="flex items-center space-x-2 hover:text-yellow-300 transition"
-                title="Profile"
+                className="flex items-center space-x-2 hover:text-yellow-300"
               >
                 <FaUser />
-                <span className="max-w-xs truncate">{username}</span>
+                <span>{username}</span>
               </button>
-
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-semibold transition"
+              >
+                Logout
+              </button>
               <button
                 onClick={() => {
                   const userId = localStorage.getItem("userId");
@@ -79,22 +88,22 @@ const Navbar = () => {
                     navigate("/login");
                   }
                 }}
-                className="relative flex items-center space-x-2 hover:text-yellow-300 transition"
+                className="relative hover:text-yellow-300 flex items-center space-x-1"
                 aria-label="Cart"
               >
                 <FaShoppingCart />
-                <span>Cart</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-4 bg-red-600 text-xs font-bold rounded-full px-1 select-none">
+                  <span className="absolute -top-2 -right-3 bg-red-500 text-xs px-1 rounded-full font-bold">
                     {cartCount}
                   </span>
                 )}
+                <span>Cart</span>
               </button>
             </>
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center space-x-2 hover:text-yellow-300 transition"
+              className="flex items-center space-x-2 hover:text-yellow-300"
             >
               <FaUser />
               <span>Login</span>
@@ -102,9 +111,9 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Hamburger */}
+        {/* Mobile hamburger */}
         <button
-          className="md:hidden text-yellow-400 text-3xl focus:outline-none"
+          className="md:hidden text-white text-xl focus:outline-none flex-shrink-0"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -114,78 +123,63 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden fixed top-16 left-0 w-full bg-blue-900 border-t border-yellow-400 shadow-lg z-40">
-          <form
-            onSubmit={handleSearch}
-            className="flex mx-4 my-4"
-            role="search"
-          >
-            <input
-              type="text"
-              placeholder="Search products, brands, and more..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-grow rounded-l-md py-2 px-3 text-blue-900 placeholder-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-yellow-400"
-            />
-            <button
-              type="submit"
-              aria-label="Search"
-              className="bg-yellow-400 text-blue-900 px-4 rounded-r-md font-semibold hover:bg-yellow-300 transition"
-            >
-              <FaSearch />
-            </button>
-          </form>
-
-          <div className="flex flex-col space-y-3 px-6 pb-6 text-yellow-400 font-semibold">
-            {username ? (
-              <>
-                <button
-                  onClick={() => {
-                    navigate("/profile");
-                    setMenuOpen(false);
-                  }}
-                  className="flex items-center space-x-3 hover:text-yellow-300 transition truncate"
-                >
-                  <FaUser />
-                  <span>{username}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    const userId = localStorage.getItem("userId");
-                    if (userId) {
-                      navigate("/cart");
-                      setMenuOpen(false);
-                    } else {
-                      alert("Please login first!");
-                      navigate("/login");
-                      setMenuOpen(false);
-                    }
-                  }}
-                  className="relative flex items-center space-x-3 hover:text-yellow-300 transition"
-                >
-                  <FaShoppingCart />
-                  <span>Cart</span>
-                  {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-red-600 text-xs font-bold rounded-full px-1 select-none">
-                      {cartCount}
-                    </span>
-                  )}
-                </button>
-              </>
-            ) : (
+        <div className="md:hidden bg-blue-700 px-4 py-4 space-y-3 shadow-lg">
+          {username ? (
+            <>
               <button
                 onClick={() => {
-                  navigate("/login");
+                  navigate("/profile");
                   setMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 hover:text-yellow-300 transition"
+                className="flex items-center space-x-2 hover:text-yellow-300 w-full text-left"
               >
                 <FaUser />
-                <span>Login</span>
+                <span>{username}</span>
               </button>
-            )}
-          </div>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMenuOpen(false);
+                }}
+                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-semibold w-full text-left transition"
+              >
+                Logout
+              </button>
+              <button
+                onClick={() => {
+                  const userId = localStorage.getItem("userId");
+                  if (userId) {
+                    navigate("/cart");
+                    setMenuOpen(false);
+                  } else {
+                    alert("Please login first!");
+                    navigate("/login");
+                    setMenuOpen(false);
+                  }
+                }}
+                className="relative hover:text-yellow-300 flex items-center space-x-2 w-full text-left"
+              >
+                <FaShoppingCart />
+                <span>Cart</span>
+                {cartCount > 0 && (
+                  <span className="absolute top-1 right-4 bg-red-500 text-xs px-1 rounded-full font-bold">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                navigate("/login");
+                setMenuOpen(false);
+              }}
+              className="flex items-center space-x-2 hover:text-yellow-300 w-full text-left"
+            >
+              <FaUser />
+              <span>Login</span>
+            </button>
+          )}
         </div>
       )}
     </nav>
