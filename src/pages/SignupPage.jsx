@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api/axios'; // ✅ uses axios instance with baseURL
+import axios from '../api/axios';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const Signup = () => {
     }
 
     try {
-      await axios.post('/auth/register', {
+      await axios.post('/api/auth/register', {   // ✅ fixed endpoint
         name: formData.name,
         email: formData.email,
         password: formData.password,

@@ -19,7 +19,7 @@ const LoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/auth/login", {
+      const res = await axios.post("/api/auth/login", {   // ✅ fixed endpoint
         identifier,
         password,
       });
