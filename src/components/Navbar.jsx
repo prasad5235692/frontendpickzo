@@ -35,22 +35,26 @@ const Navbar = () => {
         </div>
 
         {/* Search bar */}
-        <form onSubmit={handleSearch} className="flex flex-grow max-w-xl mx-4 min-w-0">
-          <input
-            type="text"
-            placeholder="Search for products, brands and more"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-l-lg px-2 py-2 text-black focus:outline-none min-w-0"
-          />
-          <button
-            type="submit"
-            className="bg-yellow-400 px-4 rounded-r-md flex items-center justify-center hover:bg-yellow-500 transition flex-shrink-0"
-            aria-label="Search"
-          >
-            <FaSearch />
-          </button>
-        </form>
+        {/* Search bar */}
+<form
+  onSubmit={handleSearch}
+  className="flex flex-grow max-w-5xl mx-4 min-w-0"  // increased max-w to 5xl (~80rem)
+>
+  <input
+    type="text"
+    placeholder="Search for products, brands and more"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full rounded-l-md px-3 py-2 text-black focus:outline-none min-w-0"
+  />
+  <button
+    type="submit"
+    className="bg-yellow-400 px-4 rounded-r-md flex items-center justify-center hover:bg-yellow-500 transition flex-shrink-0"
+    aria-label="Search"
+  >
+    <FaSearch />
+  </button>
+</form>
 
         {/* Desktop menu */}
         <div className="hidden md:flex items-center space-x-6 flex-shrink-0">
