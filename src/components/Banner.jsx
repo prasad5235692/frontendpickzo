@@ -70,7 +70,7 @@ const Banner = () => {
             key={idx}
             onClick={() => setCurrentIndex(idx)}
             className={`w-3 h-3 rounded-full ${
-              idx === currentIndex ? "bg-yellow-400" : "bg-gray-300"
+              idx === currentIndex ? "bg-blue-600" : "bg-white"
             }`}
             aria-label={`Go to slide ${idx + 1}`}
           />
