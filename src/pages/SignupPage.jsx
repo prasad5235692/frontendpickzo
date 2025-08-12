@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api/axios'; // ✅ uses axios instance with baseURL
+import axios from '../api/axios'; // uses axios instance with baseURL
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ const Signup = () => {
     }
 
     try {
+      // Await the post request to ensure it completes before continuing
       await axios.post('/auth/register', {
         name: formData.name,
         email: formData.email,
@@ -45,7 +46,7 @@ const Signup = () => {
       }, 1500);
     } catch (err) {
       const errorMsg =
-        err.response?.data?.msg || err.response?.data?.message || '❌ Signup failed';
+        err.response?.data?.message || err.response?.data?.msg || '❌ Signup failed';
       setMessage(errorMsg);
       setIsError(true);
     }
