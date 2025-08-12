@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://backendpickzo.onrender.com', // your backend baseURL
+  baseURL: 'https://backendpickzo.onrender.com/api', // your backend baseURL
 });
 
 // Automatically attach token to headers
