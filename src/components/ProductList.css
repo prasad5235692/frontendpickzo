@@ -1,0 +1,23 @@
+/* ProductList.css */
+
+/* Mobile view adjustments */
+@media (max-width: 768px) {
+  .product-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .product-card img {
+    width: 80px !important;
+    height: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .product-card > *:not(img) {
+    flex: 1;
+  }
+}
