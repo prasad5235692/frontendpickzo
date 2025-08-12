@@ -41,7 +41,7 @@ const Navbar = () => {
             placeholder="Search for products, brands and more"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-l-md px-3 py-2 text-black focus:outline-none min-w-0"
+            className="w-full rounded-l-md px-8 py-2 text-black focus:outline-none min-w-0"
           />
           <button
             type="submit"
