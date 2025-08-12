@@ -28,7 +28,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <div
-          className="text-2xl font-bold cursor-pointer flex-shrink-0"
+          className="text-2xl font-bold cursor-pointer flex-shrink-0 mr-4"
           onClick={() => navigate("/")}
         >
           PickZo
