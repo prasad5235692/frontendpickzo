@@ -24,21 +24,21 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white fixed top-0 left-0 w-full shadow-md z-50">
+    <nav className="bg-blue-900 fixed top-0 left-0 w-full z-50 shadow-lg">
       <div className="container mx-auto px-5 md:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <div
           onClick={() => navigate("/")}
-          className="text-gray-800 font-serif font-bold text-3xl cursor-pointer select-none"
+          className="text-yellow-400 font-serif font-extrabold text-3xl cursor-pointer select-none tracking-wide"
           aria-label="Homepage"
         >
           PickZo
         </div>
 
-        {/* Search form */}
+        {/* Search form - desktop */}
         <form
           onSubmit={handleSearch}
-          className="flex flex-grow max-w-xl mx-6 relative"
+          className="hidden md:flex flex-grow max-w-xl mx-6 relative"
           role="search"
         >
           <input
@@ -46,24 +46,24 @@ const Navbar = () => {
             placeholder="Search products, brands, and more..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border border-gray-300 rounded-l-md py-2 px-4 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full rounded-l-md py-2 px-4 text-blue-900 placeholder-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-yellow-400"
           />
           <button
             type="submit"
             aria-label="Search"
-            className="bg-blue-600 text-white px-4 rounded-r-md hover:bg-blue-700 transition"
+            className="bg-yellow-400 text-blue-900 px-5 rounded-r-md font-semibold hover:bg-yellow-300 transition"
           >
             <FaSearch />
           </button>
         </form>
 
         {/* Desktop menu */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-10 text-yellow-400 font-semibold">
           {username ? (
             <>
               <button
                 onClick={() => navigate("/profile")}
-                className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition font-medium"
+                className="flex items-center space-x-2 hover:text-yellow-300 transition"
                 title="Profile"
               >
                 <FaUser />
@@ -79,13 +79,13 @@ const Navbar = () => {
                     navigate("/login");
                   }
                 }}
-                className="relative flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition font-medium"
+                className="relative flex items-center space-x-2 hover:text-yellow-300 transition"
                 aria-label="Cart"
               >
                 <FaShoppingCart />
                 <span>Cart</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-red-600 text-xs font-bold rounded-full px-1 select-none">
+                  <span className="absolute -top-2 -right-4 bg-red-600 text-xs font-bold rounded-full px-1 select-none">
                     {cartCount}
                   </span>
                 )}
@@ -94,7 +94,7 @@ const Navbar = () => {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition font-medium"
+              className="flex items-center space-x-2 hover:text-yellow-300 transition"
             >
               <FaUser />
               <span>Login</span>
@@ -104,7 +104,7 @@ const Navbar = () => {
 
         {/* Mobile Hamburger */}
         <button
-          className="md:hidden text-gray-700 text-2xl focus:outline-none"
+          className="md:hidden text-yellow-400 text-3xl focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -114,10 +114,10 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 shadow-inner">
+        <div className="md:hidden fixed top-16 left-0 w-full bg-blue-900 border-t border-yellow-400 shadow-lg z-40">
           <form
             onSubmit={handleSearch}
-            className="flex mx-4 my-3"
+            className="flex mx-4 my-4"
             role="search"
           >
             <input
@@ -125,18 +125,18 @@ const Navbar = () => {
               placeholder="Search products, brands, and more..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-grow border border-gray-300 rounded-l-md py-2 px-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="flex-grow rounded-l-md py-2 px-3 text-blue-900 placeholder-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-yellow-400"
             />
             <button
               type="submit"
               aria-label="Search"
-              className="bg-blue-600 text-white px-4 rounded-r-md hover:bg-blue-700 transition"
+              className="bg-yellow-400 text-blue-900 px-4 rounded-r-md font-semibold hover:bg-yellow-300 transition"
             >
               <FaSearch />
             </button>
           </form>
 
-          <div className="flex flex-col space-y-3 px-5 py-4">
+          <div className="flex flex-col space-y-3 px-6 pb-6 text-yellow-400 font-semibold">
             {username ? (
               <>
                 <button
@@ -144,10 +144,10 @@ const Navbar = () => {
                     navigate("/profile");
                     setMenuOpen(false);
                   }}
-                  className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition font-medium"
+                  className="flex items-center space-x-3 hover:text-yellow-300 transition truncate"
                 >
                   <FaUser />
-                  <span className="truncate">{username}</span>
+                  <span>{username}</span>
                 </button>
 
                 <button
@@ -162,7 +162,7 @@ const Navbar = () => {
                       setMenuOpen(false);
                     }
                   }}
-                  className="relative flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition font-medium"
+                  className="relative flex items-center space-x-3 hover:text-yellow-300 transition"
                 >
                   <FaShoppingCart />
                   <span>Cart</span>
@@ -179,7 +179,7 @@ const Navbar = () => {
                   navigate("/login");
                   setMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 transition font-medium"
+                className="flex items-center space-x-3 hover:text-yellow-300 transition"
               >
                 <FaUser />
                 <span>Login</span>
