@@ -32,7 +32,7 @@ const ProductList = () => {
 
   const categoryOrder = [
     { name: "iPhone", limit: 8 },
-    { name: "Mobile", limit: 8 },
+    { name: "Android", limit: 8 },
     { name: "Laptop", limit: 8 },
     { name: "Home", limit: 8 },
     { name: "Pants", limit: 8 },
