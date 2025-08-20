@@ -27,7 +27,7 @@ const ProductCard = ({ product }) => {
         className="
           flex flex-row sm:flex-col items-center sm:items-start
           border rounded-lg p-3 shadow hover:shadow-md transition bg-white
-          animate-scaleIn
+          animate-scaleIn   // ✅ Added animation
         "
       >
         {/* Image */}
@@ -35,12 +35,11 @@ const ProductCard = ({ product }) => {
           src={product.image}
           alt={product.title}
           className="w-24 h-24 sm:w-full sm:h-40 object-contain mb-0 sm:mb-2"
-          loading="lazy" // ✅ lazy loading for speed
         />
 
         {/* Details */}
         <div className="flex-1 pl-3 sm:pl-0">
-          <h3 className="font-semibold text-sm sm:text-base md:text-lg line-clamp-1">
+          <h3 className="font-semibold text-sm sm:text-base md:text-lg">
             {product.title}
           </h3>
           <p className="text-green-600 font-bold text-sm sm:text-md md:text-lg mb-1">
