@@ -9,7 +9,6 @@ const OrderSuccess = () => {
   const navigate = useNavigate();
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
-  // ✅ Handle window size for Confetti
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight });
     const handleResize = () =>
@@ -23,7 +22,7 @@ const OrderSuccess = () => {
       {/* 🎉 Confetti */}
       <Confetti width={windowSize.width} height={windowSize.height} />
 
-      {/* 🔥 Firework circles (background animated) */}
+      {/* 🔥 Animated background circles */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.7, 0.3] }}
@@ -47,11 +46,11 @@ const OrderSuccess = () => {
         {/* ✅ Success Icon */}
         <motion.div
           initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
+          animate={{ scale: 1.2 }}
+          transition={{ type: "spring", stiffness: 120, delay: 0.2 }}
           className="flex justify-center"
         >
-          <FaCheckCircle className="text-green-500 text-8xl drop-shadow-lg animate-pulse" />
+          <FaCheckCircle className="text-green-500 text-9xl drop-shadow-lg animate-pulse" />
         </motion.div>
 
         {/* Title */}
@@ -59,7 +58,7 @@ const OrderSuccess = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-6 text-3xl font-extrabold text-gray-800"
+          className="mt-6 text-4xl font-extrabold text-gray-800"
         >
           🎊 Order Placed Successfully!
         </motion.h1>
@@ -72,33 +71,14 @@ const OrderSuccess = () => {
           className="mt-3 text-gray-600 text-lg"
         >
           Thank you for shopping with{" "}
-          <span className="font-semibold text-blue-600">Pickzo</span>.  
-          Your items are on the way 🚚
+          <span className="font-semibold text-blue-600">Pickzo</span>. Your items are on the way 🚚
         </motion.p>
 
-        {/* 🚚 Delivery Progress Tracker */}
-        <div className="mt-8 flex justify-between items-center">
-          {["Placed", "Packed", "Shipped", "Delivered"].map((step, index) => (
-            <motion.div
-              key={index}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1 + index * 0.3 }}
-              className="flex flex-col items-center"
-            >
-              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg animate-bounce">
-                {index + 1}
-              </div>
-              <p className="mt-2 text-sm font-semibold text-gray-700">{step}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Buttons */}
+        {/* 🚀 Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.8 }}
+          transition={{ delay: 1.2 }}
           className="mt-10 flex flex-col gap-4"
         >
           <button
