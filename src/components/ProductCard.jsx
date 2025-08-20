@@ -27,7 +27,6 @@ const ProductCard = ({ product }) => {
         className="
           flex flex-row sm:flex-col items-center sm:items-start
           border rounded-lg p-3 shadow hover:shadow-md transition bg-white
-          animate-scaleIn   // ✅ Added animation
         "
       >
         {/* Image */}
