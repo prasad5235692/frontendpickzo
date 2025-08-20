@@ -1,87 +1,68 @@
 // src/pages/OrderSuccess.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
-const Confetti = () => {
-  // Simple confetti animation using canvas
-  // Lightweight and adds that celebratory vibe
-
+// 🎉 Particle Burst Animation
+const ParticleBurst = () => {
   useEffect(() => {
     const canvas = document.getElementById("confetti-canvas");
     const ctx = canvas.getContext("2d");
     let W = window.innerWidth;
     let H = window.innerHeight;
-
     canvas.width = W;
     canvas.height = H;
 
-    const colors = [
-      "#FFC700",
-      "#FF0000",
-      "#2E3192",
-      "#41BBC7",
-      "#7325B7",
-      "#38B000",
-      "#FF8F00",
-    ];
+    const particles = [];
+    const colors = ["#22c55e", "#16a34a", "#4ade80", "#bbf7d0", "#86efac"];
 
-    const confettiCount = 150;
-    const confetti = [];
-
-    function randomRange(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
-    function Confetto() {
-      this.x = Math.random() * W;
-      this.y = Math.random() * H - H;
-      this.rotation = randomRange(0, 2 * Math.PI);
-      this.size = randomRange(5, 12);
+    function Particle(x, y) {
+      this.x = x;
+      this.y = y;
+      this.size = Math.random() * 6 + 4;
       this.color = colors[Math.floor(Math.random() * colors.length)];
-      this.speed = randomRange(1, 3);
-      this.opacity = randomRange(0.7, 1);
-      this.doppler = 0.03 + Math.random() / 30;
-      this.tiltAngle = 0;
-      this.tiltAngleIncrement = randomRange(0.05, 0.12);
-      this.tilt = 0;
+      this.speedX = (Math.random() - 0.5) * 6;
+      this.speedY = Math.random() * -4 - 2;
+      this.alpha = 1;
     }
 
-    Confetto.prototype.update = function () {
-      this.y += this.speed;
-      this.tiltAngle += this.tiltAngleIncrement;
-      this.tilt = Math.sin(this.tiltAngle) * 15;
-
-      if (this.y > H) {
-        this.x = Math.random() * W;
-        this.y = -20;
-        this.speed = randomRange(1, 3);
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-      }
+    Particle.prototype.update = function () {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.alpha -= 0.01;
     };
 
-    Confetto.prototype.draw = function () {
+    Particle.prototype.draw = function () {
+      ctx.globalAlpha = this.alpha;
       ctx.beginPath();
-      ctx.lineWidth = this.size / 2;
-      ctx.strokeStyle = this.color;
-      ctx.moveTo(this.x + this.tilt + this.size / 2, this.y);
-      ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.size / 2);
-      ctx.stroke();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.globalAlpha = 1;
     };
 
-    for (let i = 0; i < confettiCount; i++) {
-      confetti.push(new Confetto());
-    }
-
-    function update() {
+    function animate() {
       ctx.clearRect(0, 0, W, H);
-      confetti.forEach((c) => {
-        c.update();
-        c.draw();
+      particles.forEach((p, i) => {
+        p.update();
+        p.draw();
+        if (p.alpha <= 0) particles.splice(i, 1);
       });
-      requestAnimationFrame(update);
+      requestAnimationFrame(animate);
     }
 
-    update();
+    function burst() {
+      const x = W / 2;
+      const y = H / 2;
+      for (let i = 0; i < 50; i++) {
+        particles.push(new Particle(x, y));
+      }
+    }
+
+    burst(); // first burst
+    const interval = setInterval(burst, 2000); // repeat bursts
+
+    animate();
 
     const onResize = () => {
       W = window.innerWidth;
@@ -89,10 +70,10 @@ const Confetti = () => {
       canvas.width = W;
       canvas.height = H;
     };
-
     window.addEventListener("resize", onResize);
 
     return () => {
+      clearInterval(interval);
       window.removeEventListener("resize", onResize);
     };
   }, []);
@@ -105,68 +86,82 @@ const Confetti = () => {
   );
 };
 
-const PartyIcon = () => (
+// ✅ Success Check Icon with Animation
+const SuccessCheck = () => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 animate-bounce"
-    fill="none"
-    viewBox="0 0 64 64"
-    stroke="url(#grad1)"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    className="w-24 h-24 mx-auto mb-6 animate-scaleIn"
+    viewBox="0 0 52 52"
   >
-    <defs>
-      <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#4ade80" />
-        <stop offset="100%" stopColor="#16a34a" />
-      </linearGradient>
-    </defs>
-    <path d="M32 4 L44 24 L40 62 L24 62 L20 24 Z" fill="#22c55e" />
-    <circle cx="32" cy="32" r="6" fill="#bbf7d0" />
-    <line x1="32" y1="12" x2="32" y2="20" />
-    <line x1="25" y1="18" x2="28" y2="22" />
-    <line x1="39" y1="18" x2="36" y2="22" />
+    <circle
+      className="text-green-200"
+      cx="26"
+      cy="26"
+      r="25"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <path
+      className="text-green-600"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M14 27l7 7 16-16"
+    />
   </svg>
 );
 
 const OrderSuccess = () => {
   const [visible, setVisible] = useState(false);
 
-  // Trigger fade in effect
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen  px-6 sm:px-12 overflow-hidden">
-      <Confetti />
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-6 sm:px-12 overflow-hidden bg-gradient-to-br from-green-50 to-green-100">
+      {/* Background Particles */}
+      <ParticleBurst />
 
-      <div
-        className={`max-w-xl text-center p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl transition-opacity duration-700 ease-in-out ${
-          visible ? "opacity-100" : "opacity-0 translate-y-6"
-        }`}
+      {/* Success Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 40 }}
+        animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.9, y: visible ? 0 : 40 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-xl text-center p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl relative z-10"
       >
-        <PartyIcon />
+        <SuccessCheck />
 
         <h1 className="text-4xl sm:text-5xl font-extrabold text-green-700 mb-6 drop-shadow-md">
           Order Placed Successfully!
         </h1>
 
-        <p className="text-lg sm:text-xl  mb-8 leading-relaxed">
-          Thank you for your purchase. Your order has been confirmed.
+        <p className="text-lg sm:text-xl mb-8 leading-relaxed text-gray-700">
+          Thank you for your purchase. Your order has been confirmed 🎉
         </p>
 
         <Link
           to="/profile"
-         className="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 rounded-lg shadow-md transition duration-200 text-sm sm:text-base"
+          className="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 rounded-lg shadow-md transition duration-200 text-sm sm:text-base"
         >
           Go to My Orders
         </Link>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
 export default OrderSuccess;
+
+/* ✅ Add this to your global CSS (e.g., index.css or tailwind.css)
+@keyframes scaleIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-scaleIn {
+  animation: scaleIn 0.6s ease forwards;
+}
+*/
