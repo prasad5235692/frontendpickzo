@@ -1,122 +1,167 @@
 // src/pages/OrderSuccess.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Confetti from "react-confetti";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaCheckCircle } from "react-icons/fa";
 
-const OrderSuccess = () => {
-  const navigate = useNavigate();
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-
-  // ✅ Handle window size for Confetti
+// 🎉 Particle Burst Animation
+const ParticleBurst = () => {
   useEffect(() => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    const handleResize = () =>
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+
+    const particles = [];
+    const colors = ["#22c55e", "#16a34a", "#4ade80", "#bbf7d0", "#86efac"];
+
+    function Particle(x, y) {
+      this.x = x;
+      this.y = y;
+      this.size = Math.random() * 6 + 4;
+      this.color = colors[Math.floor(Math.random() * colors.length)];
+      this.speedX = (Math.random() - 0.5) * 6;
+      this.speedY = Math.random() * -4 - 2;
+      this.alpha = 1;
+    }
+
+    Particle.prototype.update = function () {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.alpha -= 0.01;
+    };
+
+    Particle.prototype.draw = function () {
+      ctx.globalAlpha = this.alpha;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    };
+
+    function animate() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach((p, i) => {
+        p.update();
+        p.draw();
+        if (p.alpha <= 0) particles.splice(i, 1);
+      });
+      requestAnimationFrame(animate);
+    }
+
+    function burst() {
+      const x = W / 2;
+      const y = H / 2;
+      for (let i = 0; i < 50; i++) {
+        particles.push(new Particle(x, y));
+      }
+    }
+
+    burst(); // first burst
+    const interval = setInterval(burst, 2000); // repeat bursts
+
+    animate();
+
+    const onResize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-blue-100 to-purple-200 overflow-hidden">
-      {/* 🎉 Confetti */}
-      <Confetti width={windowSize.width} height={windowSize.height} />
+    <canvas
+      id="confetti-canvas"
+      className="pointer-events-none fixed top-0 left-0 w-full h-full z-50"
+    />
+  );
+};
 
-      {/* 🔥 Firework circles (background animated) */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.7, 0.3] }}
-        transition={{ repeat: Infinity, duration: 4 }}
-        className="absolute w-64 h-64 rounded-full bg-pink-400 opacity-40 blur-3xl top-20 left-20"
-      />
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: [1, 1.8, 1], opacity: [0.3, 0.7, 0.3] }}
-        transition={{ repeat: Infinity, duration: 5 }}
-        className="absolute w-72 h-72 rounded-full bg-yellow-400 opacity-40 blur-3xl bottom-20 right-20"
-      />
+// ✅ Success Check Icon with Animation
+const SuccessCheck = () => (
+  <svg
+    className="w-24 h-24 mx-auto mb-6 animate-scaleIn"
+    viewBox="0 0 52 52"
+  >
+    <circle
+      className="text-green-200"
+      cx="26"
+      cy="26"
+      r="25"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <path
+      className="text-green-600"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M14 27l7 7 16-16"
+    />
+  </svg>
+);
 
-      {/* ✅ Success Card */}
+const OrderSuccess = () => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-6 sm:px-12 overflow-hidden bg-gradient-to-br from-green-50 to-green-100">
+      {/* Background Particles */}
+      <ParticleBurst />
+
+      {/* Success Card */}
       <motion.div
-        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="bg-white shadow-2xl rounded-3xl p-10 max-w-md w-full text-center relative z-10"
+        initial={{ opacity: 0, scale: 0.9, y: 40 }}
+        animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.9, y: visible ? 0 : 40 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-xl text-center p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl relative z-10"
       >
-        {/* ✅ Success Icon */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
-          className="flex justify-center"
-        >
-          <FaCheckCircle className="text-green-500 text-8xl drop-shadow-lg animate-pulse" />
-        </motion.div>
+        <SuccessCheck />
 
-        {/* Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 text-3xl font-extrabold text-gray-800"
-        >
-          🎊 Order Placed Successfully!
-        </motion.h1>
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-green-700 mb-6 drop-shadow-md">
+          Order Placed Successfully!
+        </h1>
 
-        {/* Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-3 text-gray-600 text-lg"
-        >
-          Thank you for shopping with{" "}
-          <span className="font-semibold text-blue-600">Pickzo</span>.  
-          Your items are on the way 🚚
-        </motion.p>
+        <p className="text-lg sm:text-xl mb-8 leading-relaxed text-gray-700">
+          Thank you for your purchase. Your order has been confirmed 🎉
+        </p>
 
-        {/* 🚚 Delivery Progress Tracker */}
-        <div className="mt-8 flex justify-between items-center">
-          {["Placed", "Packed", "Shipped", "Delivered"].map((step, index) => (
-            <motion.div
-              key={index}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1 + index * 0.3 }}
-              className="flex flex-col items-center"
-            >
-              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg animate-bounce">
-                {index + 1}
-              </div>
-              <p className="mt-2 text-sm font-semibold text-gray-700">{step}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.8 }}
-          className="mt-10 flex flex-col gap-4"
+        <Link
+          to="/profile"
+          className="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-6 py-2 rounded-lg shadow-md transition duration-200 text-sm sm:text-base"
         >
-          <button
-            onClick={() => navigate("/profile")}
-            className="bg-green-500 hover:bg-green-600 hover:shadow-green-400/50 text-white px-6 py-3 rounded-2xl text-lg font-semibold shadow-lg transition-all duration-300"
-          >
-            View My Orders
-          </button>
-          <button
-            onClick={() => navigate("/")}
-            className="bg-blue-500 hover:bg-blue-600 hover:shadow-blue-400/50 text-white px-6 py-3 rounded-2xl text-lg font-semibold shadow-lg transition-all duration-300"
-          >
-            Continue Shopping
-          </button>
-        </motion.div>
+          Go to My Orders
+        </Link>
       </motion.div>
     </div>
   );
 };
 
 export default OrderSuccess;
+
+/* ✅ Add this to your global CSS (e.g., index.css or tailwind.css)
+@keyframes scaleIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-scaleIn {
+  animation: scaleIn 0.6s ease forwards;
+}
+*/
