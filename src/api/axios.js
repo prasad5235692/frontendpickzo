@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://backend-snowy-iota-83.vercel.app/api', 
+  baseURL: 'https://backend-snowy-iota-83.vercel.app/api', 
   // baseURL: 'http://localhost:5000/api', 
 });
 
