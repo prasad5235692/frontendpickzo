@@ -2,8 +2,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  // baseURL: 'https://backend-snowy-iota-83.vercel.app/api', 
-  baseURL: 'http://localhost:5000/api', 
+  baseURL: 'https://backend-snowy-iota-83.vercel.app', 
+  // baseURL: 'http://localhost:5000/api', 
 });
 
 // Automatically attach token to headers
