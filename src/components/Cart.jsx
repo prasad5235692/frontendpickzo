@@ -10,8 +10,8 @@ const Cart = () => {
       try {
         const res = await axios.get("/cart");
         setCartItems(res.data);
-      } catch (err) {
-        console.error("❌ Failed to load cart:", err);
+      } catch {
+        // failed to load cart
       } finally {
         setLoading(false);
       }
@@ -23,8 +23,8 @@ const Cart = () => {
     try {
       await axios.delete(`/cart/${itemId}`);
       setCartItems((prev) => prev.filter((item) => item._id !== itemId));
-    } catch (err) {
-      console.error("❌ Failed to remove item:", err);
+    } catch {
+      // failed to remove item
     }
   };
 
@@ -33,8 +33,8 @@ const Cart = () => {
       if (cartItems.length === 0) return;
       await axios.delete("/cart");
       setCartItems([]);
-    } catch (err) {
-      console.error("❌ Failed to clear cart:", err);
+    } catch {
+      // failed to clear cart
     }
   };
 

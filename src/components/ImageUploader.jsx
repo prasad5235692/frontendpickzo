@@ -20,9 +20,8 @@
       try {
         const res = await axios.post('https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', formData);
         setUrl(res.data.secure_url);
-        console.log('✅ Image URL:', res.data.secure_url);
       } catch (err) {
-        console.error('❌ Upload failed:', err);
+        alert('Upload failed. Please try again.');
       }
 
       setUploading(false);
