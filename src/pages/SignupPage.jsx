@@ -95,6 +95,15 @@ const Signup = () => {
                   type={type}
                   name={name}
                   placeholder={placeholder}
+                  data-agent={
+                    name === 'name'
+                      ? 'signup-name'
+                      : name === 'email'
+                        ? 'signup-email'
+                        : name === 'password'
+                          ? 'signup-password'
+                          : 'signup-confirm-password'
+                  }
                   className="w-full pl-9 pr-4 py-3 border-b-2 border-gray-300 focus:border-blue-600 focus:outline-none text-sm bg-transparent"
                   value={formData[name]}
                   onChange={handleChange}
@@ -112,6 +121,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
+              data-agent="signup-submit"
               className="w-full bg-[#FB641B] hover:bg-orange-600 disabled:opacity-60 text-white font-bold py-3 rounded text-sm shadow transition"
             >
               {loading ? 'Creating account...' : 'Create Account'}

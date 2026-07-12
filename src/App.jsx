@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ProductDetail from './components/ProductDetail';
 import ScrollToTop from './components/ScrollToTop';
+import AiAssistant from './components/AiAssistant';
 
 
 // Pages
@@ -54,6 +55,7 @@ const App = () => {
           </Routes>
         </main>
         <Footer />
+        <AiAssistant />
       </div>
     </Router>
   );

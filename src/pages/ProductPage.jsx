@@ -162,7 +162,10 @@ const ProductPage = () => {
   );
 
   return (
-    <div className="bg-[#F1F3F6] min-h-screen pt-[186px] sm:pt-[148px]">
+    <div
+      className="bg-[#F1F3F6] min-h-screen pt-[186px] sm:pt-[148px]"
+      data-agent="product-list-page"
+    >
       <div className="max-w-[1400px] mx-auto px-4 py-4">
 
         {/* Header row */}
@@ -228,37 +231,65 @@ const ProductPage = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-px bg-gray-200 border border-gray-200 rounded overflow-hidden shadow-sm">
+              <div
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-px bg-gray-200 border border-gray-200 rounded overflow-hidden shadow-sm"
+                data-agent="product-grid"
+              >
                 {loading
                   ? Array.from({ length: 20 }).map((_, i) => <SkeletonCard key={i} />)
                   : filtered.map((product) => {
                       const mrp = Math.round(product.price * 1.2);
                       const off = Math.round(((mrp - product.price) / mrp) * 100);
                       return (
-                        <Link key={product._id} to={`/product/${product._id}`} className="group block bg-white hover:shadow-md transition-shadow">
+                        <Link
+                          key={product._id}
+                          to={`/product/${product._id}`}
+                          className="group block bg-white hover:shadow-md transition-shadow"
+                          data-agent="product-card"
+                          data-agent-id={product._id}
+                          data-agent-title={product.title}
+                          data-agent-price={String(product.price ?? '')}
+                          data-agent-rating={String(product.rating ?? '')}
+                          data-agent-availability="Available"
+                        >
                           <div className="flex items-center justify-center h-40 bg-white overflow-hidden px-4 pt-4">
                             <img
                               src={product.image}
                               alt={product.title}
                               className="h-32 w-full object-contain group-hover:scale-105 transition-transform duration-200"
                               loading="lazy"
+                              data-agent="product-card-image"
                             />
                           </div>
                           <div className="p-3">
-                            <h3 className="text-xs text-gray-800 line-clamp-2 leading-snug mb-1">
+                            <h3
+                              className="text-xs text-gray-800 line-clamp-2 leading-snug mb-1"
+                              data-agent="product-card-title"
+                            >
                               {product.title}
                             </h3>
                             <div className="flex items-center gap-1 mb-1">
-                              <span className="inline-flex items-center gap-0.5 bg-green-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                              <span
+                                className="inline-flex items-center gap-0.5 bg-green-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded"
+                                data-agent="product-card-rating"
+                              >
                                 {product.rating || 4.1} <FaStar size={8} />
                               </span>
                               <span className="text-[10px] text-gray-400">(1,245)</span>
                             </div>
                             <div className="flex items-baseline gap-1.5 flex-wrap">
-                              <span className="text-sm font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
+                              <span
+                                className="text-sm font-bold text-gray-900"
+                                data-agent="product-card-price"
+                              >
+                                ₹{product.price.toLocaleString()}
+                              </span>
                               <span className="text-[10px] text-gray-400 line-through">₹{mrp.toLocaleString()}</span>
                               <span className="text-[10px] font-semibold text-green-600">{off}% off</span>
                             </div>
+                            <span className="sr-only" data-agent="product-card-availability">
+                              Available
+                            </span>
                           </div>
                         </Link>
                       );

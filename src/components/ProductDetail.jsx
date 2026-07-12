@@ -108,7 +108,12 @@ const ProductDetail = () => {
   const thumbnails = [product.image, product.image, product.image];
 
   return (
-    <div className="pt-[186px] sm:pt-[148px] bg-[#F1F3F6] min-h-screen">
+    <div
+      className="pt-[186px] sm:pt-[148px] bg-[#F1F3F6] min-h-screen"
+      data-agent="product-detail-page"
+      data-agent-id={product._id || product.id || ''}
+      data-agent-availability="Available"
+    >
       {/* Toast */}
       {message && (
         <div
@@ -141,6 +146,7 @@ const ProductDetail = () => {
                   src={thumbnails[selectedImg]}
                   alt={product.name || product.title}
                   className="max-h-64 max-w-full object-contain"
+                  data-agent="product-image"
                 />
               </div>
               <div className="flex gap-2 justify-center mb-4">
@@ -158,12 +164,14 @@ const ProductDetail = () => {
                 <button
                   onClick={handleAddToCart}
                   className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold py-3 rounded text-sm shadow transition"
+                  data-agent="add-to-cart"
                 >
                   <FaShoppingCart size={14} /> ADD TO CART
                 </button>
                 <button
                   onClick={handleBuyNow}
                   className="flex-1 flex items-center justify-center gap-2 bg-[#FB641B] hover:bg-orange-600 text-white font-bold py-3 rounded text-sm shadow transition"
+                  data-agent="buy-now"
                 >
                   <FaBolt size={14} /> BUY NOW
                 </button>
@@ -181,15 +189,24 @@ const ProductDetail = () => {
 
             {/* Title + Rating + Price */}
             <div className="bg-white rounded shadow-sm p-5">
-              <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">
+              <p
+                className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1"
+                data-agent="product-category"
+              >
                 {product.category || 'General'}
               </p>
-              <h1 className="text-lg font-medium text-gray-900 leading-snug mb-2">
+              <h1
+                className="text-lg font-medium text-gray-900 leading-snug mb-2"
+                data-agent="product-title"
+              >
                 {product.name || product.title}
               </h1>
 
               <div className="flex items-center gap-3 mb-4">
-                <span className="inline-flex items-center gap-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded">
+                <span
+                  className="inline-flex items-center gap-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded"
+                  data-agent="product-rating"
+                >
                   {product.rating || 4.1} <FaStar size={9} />
                 </span>
                 <span className="text-xs text-gray-500 font-medium">
@@ -202,7 +219,10 @@ const ProductDetail = () => {
 
               <div className="border-t border-gray-100 pt-4">
                 <div className="flex items-baseline gap-3 flex-wrap">
-                  <span className="text-3xl font-semibold text-gray-900">
+                  <span
+                    className="text-3xl font-semibold text-gray-900"
+                    data-agent="product-price"
+                  >
                     ₹{product.price?.toLocaleString()}
                   </span>
                   <span className="text-sm text-gray-400 line-through">
@@ -263,7 +283,12 @@ const ProductDetail = () => {
             <div className="bg-white rounded shadow-sm p-5">
               <h3 className="text-sm font-bold text-gray-800 mb-3">Highlights</h3>
               {product.description ? (
-                <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+                <p
+                  className="text-sm text-gray-600 leading-relaxed"
+                  data-agent="product-description"
+                >
+                  {product.description}
+                </p>
               ) : (
                 <ul className="space-y-1.5 text-sm text-gray-600">
                   <li className="flex gap-2"><FaCheckCircle className="text-green-500 mt-0.5 flex-shrink-0" size={12} /> Premium quality product</li>
@@ -276,7 +301,12 @@ const ProductDetail = () => {
             {product.about && (
               <div className="bg-white rounded shadow-sm p-5">
                 <h3 className="text-sm font-bold text-gray-800 mb-3">Specifications</h3>
-                <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{product.about}</p>
+                <p
+                  className="text-sm text-gray-600 whitespace-pre-line leading-relaxed"
+                  data-agent="product-specifications"
+                >
+                  {product.about}
+                </p>
               </div>
             )}
 

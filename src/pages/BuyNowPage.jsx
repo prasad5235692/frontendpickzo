@@ -38,6 +38,26 @@ const BuyNowPage = () => {
     fetchUserProfile();
   }, []);
 
+  useEffect(() => {
+    const handleAiCheckoutData = (e) => {
+      if (e.detail.phone !== undefined) setPhone(e.detail.phone);
+      if (e.detail.address !== undefined) setAddress(e.detail.address);
+      if (e.detail.paymentMethod !== undefined) setPaymentMethod(e.detail.paymentMethod);
+    };
+
+    const handleAiPlaceOrder = () => {
+      handleOrder();
+    };
+
+    window.addEventListener('aiCheckoutData', handleAiCheckoutData);
+    window.addEventListener('aiPlaceOrder', handleAiPlaceOrder);
+
+    return () => {
+      window.removeEventListener('aiCheckoutData', handleAiCheckoutData);
+      window.removeEventListener('aiPlaceOrder', handleAiPlaceOrder);
+    };
+  });
+
   const handleSaveProfile = async () => {
     try {
       const res = await axios.put('/users/profile', { address, phone });
@@ -105,7 +125,7 @@ const BuyNowPage = () => {
     : product.price;
 
   return (
-    <div className="pt-[186px] sm:pt-[148px] bg-[#F1F3F6] min-h-screen">
+    <div className="pt-[186px] sm:pt-[148px] bg-[#F1F3F6] min-h-screen" data-agent="checkout-page">
       {/* Step bar */}
       <div className="bg-white border-b border-gray-200 sticky top-[148px] z-20">
         <div className="max-w-5xl mx-auto px-4 py-3">
@@ -131,7 +151,7 @@ const BuyNowPage = () => {
         </h1>
 
         {error && (
-          <div className="bg-red-50 text-red-700 border border-red-200 rounded px-4 py-3 mb-4 text-sm">
+          <div className="bg-red-50 text-red-700 border border-red-200 rounded px-4 py-3 mb-4 text-sm" data-agent="checkout-error">
             {error}
           </div>
         )}
@@ -149,6 +169,7 @@ const BuyNowPage = () => {
                 <button
                   onClick={() => setIsEditingPhone(!isEditingPhone)}
                   className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1"
+                  data-agent="checkout-phone-edit"
                 >
                   <FaPen size={9} /> {isEditingPhone ? 'Cancel' : 'Edit'}
                 </button>
@@ -160,9 +181,10 @@ const BuyNowPage = () => {
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
                   placeholder="10-digit phone number"
+                  data-agent="checkout-phone-input"
                 />
               ) : (
-                <p className="text-gray-700 text-sm">
+                <p className="text-gray-700 text-sm" data-agent="checkout-phone-value">
                   {phone || <span className="text-gray-400 italic">No phone number saved</span>}
                 </p>
               )}
@@ -177,6 +199,7 @@ const BuyNowPage = () => {
                 <button
                   onClick={() => setIsEditingAddress(!isEditingAddress)}
                   className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1"
+                  data-agent="checkout-address-edit"
                 >
                   <FaPen size={9} /> {isEditingAddress ? 'Cancel' : 'Edit'}
                 </button>
@@ -188,9 +211,10 @@ const BuyNowPage = () => {
                   rows="3"
                   className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none"
                   placeholder="House No., Street, Area, City, State, PIN"
+                  data-agent="checkout-address-input"
                 />
               ) : (
-                <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
+                <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line" data-agent="checkout-address-value">
                   {address || <span className="text-gray-400 italic">No address saved</span>}
                 </p>
               )}
@@ -200,6 +224,7 @@ const BuyNowPage = () => {
               <button
                 onClick={handleSaveProfile}
                 className="flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded transition"
+                data-agent="checkout-save-profile"
               >
                 <FaCheck size={11} /> Save Changes
               </button>
@@ -227,6 +252,7 @@ const BuyNowPage = () => {
                       checked={paymentMethod === value}
                       onChange={(e) => setPaymentMethod(e.target.value)}
                       className="accent-blue-600"
+                      data-agent="checkout-payment-input"
                     />
                     <span className="text-base">{emoji}</span>
                     <div>
@@ -294,7 +320,7 @@ const BuyNowPage = () => {
 
               <div className="flex justify-between font-bold text-gray-900 text-base border-t-2 border-dashed border-gray-200 pt-3 mb-5">
                 <span>Total Amount</span>
-                <span>₹{totalAmount.toLocaleString()}</span>
+                <span data-agent="checkout-total">₹{totalAmount.toLocaleString()}</span>
               </div>
 
               <p className="text-xs text-green-600 font-semibold mb-4">
@@ -305,6 +331,7 @@ const BuyNowPage = () => {
                 onClick={handleOrder}
                 disabled={loading}
                 className="w-full bg-[#FB641B] hover:bg-orange-600 disabled:opacity-60 text-white font-extrabold py-3 rounded text-sm shadow transition"
+                data-agent="checkout-place-order"
               >
                 {loading ? 'Placing Order...' : 'Place Order'}
               </button>

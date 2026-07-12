@@ -94,7 +94,9 @@ const LoginForm = () => {
               <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
               <input
                 type="text"
+                name="identifier"
                 placeholder="Email or Username"
+                data-agent="login-identifier"
                 className="w-full pl-9 pr-4 py-3 border-b-2 border-gray-300 focus:border-blue-600 focus:outline-none text-sm bg-transparent"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
@@ -105,7 +107,9 @@ const LoginForm = () => {
               <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
               <input
                 type="password"
+                name="password"
                 placeholder="Password"
+                data-agent="login-password"
                 className="w-full pl-9 pr-4 py-3 border-b-2 border-gray-300 focus:border-blue-600 focus:outline-none text-sm bg-transparent"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -122,6 +126,7 @@ const LoginForm = () => {
             <button
               type="submit"
               disabled={loading}
+              data-agent="login-submit"
               className="w-full bg-[#FB641B] hover:bg-orange-600 disabled:opacity-60 text-white font-bold py-3 rounded text-sm shadow transition"
             >
               {loading ? "Signing in..." : "Login"}

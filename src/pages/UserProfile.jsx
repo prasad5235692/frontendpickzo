@@ -95,6 +95,26 @@ const UserProfile = () => {
     return () => window.removeEventListener('storage', onStorageChange);
   }, [navigate]);
 
+  useEffect(() => {
+    const handleAiProfileUpdate = (e) => {
+      const updates = e.detail;
+      setEditableUser((prev) => ({ ...prev, ...updates }));
+      setIsEditing(true);
+    };
+
+    const handleAiGetProfileData = (e) => {
+      e.detail.data = editableUser;
+    };
+
+    window.addEventListener('aiProfileUpdate', handleAiProfileUpdate);
+    window.addEventListener('aiGetProfileData', handleAiGetProfileData);
+
+    return () => {
+      window.removeEventListener('aiProfileUpdate', handleAiProfileUpdate);
+      window.removeEventListener('aiGetProfileData', handleAiGetProfileData);
+    };
+  }, [editableUser]);
+
   useEffect(() => () => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
   }, []);
@@ -151,7 +171,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen pb-12 pt-[136px] sm:pt-[144px]">
+    <div className="min-h-screen pb-12 pt-[136px] sm:pt-[144px]" data-agent="profile-page">
       <div className="page-shell space-y-6">
         <div className="grid gap-6 xl:grid-cols-[320px_1.05fr_0.95fr]">
           <aside className="section-card p-6">
@@ -159,8 +179,8 @@ const UserProfile = () => {
               <div className="flex h-28 w-28 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2874f0_0%,#53a0ff_100%)] font-display text-3xl font-bold text-white shadow-[0_24px_50px_rgba(37,99,235,0.28)]">
                 {avatarText}
               </div>
-              <h2 className="mt-5 font-display text-2xl font-semibold text-slate-900">{user?.name}</h2>
-              <p className="mt-1 text-sm text-slate-500">{user?.email}</p>
+              <h2 className="mt-5 font-display text-2xl font-semibold text-slate-900" data-agent="profile-name">{user?.name}</h2>
+              <p className="mt-1 text-sm text-slate-500" data-agent="profile-email">{user?.email}</p>
             </div>
 
             <div className="mt-6 space-y-3 rounded-[28px] bg-slate-50 p-4">
@@ -170,11 +190,11 @@ const UserProfile = () => {
               </div>
               <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600">
                 <FaPhoneAlt className="text-[var(--brand-blue)]" />
-                <span>{user?.phone || 'Phone not added'}</span>
+                <span data-agent="profile-phone">{user?.phone || 'Phone not added'}</span>
               </div>
               <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600">
                 <FaMapMarkerAlt className="text-[var(--brand-blue)]" />
-                <span className="line-clamp-2">{user?.address || 'Address not added'}</span>
+                <span className="line-clamp-2" data-agent="profile-address">{user?.address || 'Address not added'}</span>
               </div>
             </div>
 
@@ -182,6 +202,7 @@ const UserProfile = () => {
               <button
                 onClick={() => setIsEditing(true)}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-blue)] px-5 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-blue-dark)]"
+                data-agent="profile-edit"
               >
                 <FaEdit />
                 Edit profile
@@ -189,6 +210,7 @@ const UserProfile = () => {
               <button
                 onClick={() => navigate('/orders')}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+                data-agent="profile-view-orders"
               >
                 <FaBoxOpen />
                 View all orders
@@ -196,6 +218,7 @@ const UserProfile = () => {
               <button
                 onClick={handleLogout}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-red-200 px-5 py-3 text-sm font-bold text-red-600 transition hover:bg-red-50"
+                data-agent="profile-logout"
               >
                 <FaSignOutAlt />
                 Logout
@@ -228,7 +251,7 @@ const UserProfile = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Primary name</p>
-                    <p className="mt-1 font-display text-lg font-semibold text-slate-900">{user?.name || 'Not set'}</p>
+                    <p className="mt-1 font-display text-lg font-semibold text-slate-900" data-agent="profile-primary-name">{user?.name || 'Not set'}</p>
                   </div>
                 </div>
               </div>
@@ -348,7 +371,7 @@ const UserProfile = () => {
 
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-[32px] bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.28)] sm:p-8">
+          <div className="w-full max-w-lg rounded-[32px] bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.28)] sm:p-8" data-agent="profile-edit-dialog">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="heading-kicker">Edit details</p>
@@ -383,6 +406,7 @@ const UserProfile = () => {
                     onChange={handleInputChange}
                     required={field !== 'address'}
                     className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-[var(--brand-blue)] focus:bg-white"
+                    data-agent={`profile-input-${field}`}
                   />
                 </label>
               ))}
@@ -391,6 +415,7 @@ const UserProfile = () => {
                 <button
                   type="submit"
                   className="inline-flex flex-1 items-center justify-center rounded-full bg-[var(--brand-blue)] px-5 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-blue-dark)]"
+                  data-agent="profile-save"
                 >
                   Save changes
                 </button>

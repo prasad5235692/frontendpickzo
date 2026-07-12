@@ -120,7 +120,7 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen pb-12 pt-[136px] sm:pt-[144px]">
+    <div className="min-h-screen pb-12 pt-[136px] sm:pt-[144px]" data-agent="cart-page">
       <div className="page-shell space-y-6">
      
         {error && (
@@ -158,6 +158,7 @@ const CartPage = () => {
                 <button
                   onClick={() => navigate('/products')}
                   className="inline-flex rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-[var(--brand-blue)] transition hover:border-[var(--brand-blue)] hover:bg-[var(--brand-soft)]"
+                  data-agent="cart-continue-shopping"
                 >
                   Continue shopping
                 </button>
@@ -171,6 +172,11 @@ const CartPage = () => {
                     <article
                       key={item._id}
                       className="rounded-[28px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-4 shadow-[0_18px_36px_rgba(15,23,42,0.06)] sm:p-5"
+                      data-agent="cart-item"
+                      data-agent-item-id={item._id}
+                      data-agent-title={item.title || item.name || ''}
+                      data-agent-price={String(item.price ?? '')}
+                      data-agent-quantity={String(item.quantity ?? '')}
                     >
                       <div className="flex flex-col gap-5 lg:flex-row">
                         <div className="flex h-36 items-center justify-center overflow-hidden rounded-[24px] bg-slate-50 p-4 lg:w-40 lg:flex-shrink-0">
@@ -192,7 +198,10 @@ const CartPage = () => {
                                   Eligible for savings
                                 </span>
                               </div>
-                              <h3 className="mt-3 font-display text-xl font-semibold text-slate-900">
+                              <h3
+                                className="mt-3 font-display text-xl font-semibold text-slate-900"
+                                data-agent="cart-item-title"
+                              >
                                 {item.title || item.name}
                               </h3>
                               <p className="mt-2 text-sm text-slate-500">
@@ -215,23 +224,28 @@ const CartPage = () => {
                                   onClick={() => handleQuantityChange(item._id, Number(item.quantity || 0) - 1)}
                                   disabled={Number(item.quantity || 0) <= 1 || actionLoading}
                                   className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:bg-slate-50 disabled:opacity-40"
+                                  data-agent="cart-decrease-quantity"
                                 >
                                   <FaMinus size={10} />
                                 </button>
-                                <span className="min-w-8 text-center text-sm font-bold text-slate-900">
+                                <span
+                                  className="min-w-8 text-center text-sm font-bold text-slate-900"
+                                  data-agent="cart-item-quantity"
+                                >
                                   {item.quantity}
                                 </span>
                                 <button
                                   onClick={() => handleQuantityChange(item._id, Number(item.quantity || 0) + 1)}
                                   disabled={actionLoading}
                                   className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:bg-slate-50 disabled:opacity-40"
+                                  data-agent="cart-increase-quantity"
                                 >
                                   <FaPlus size={10} />
                                 </button>
                               </div>
 
                               <div className="text-sm text-slate-500">
-                                Subtotal <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
+                                Subtotal <span className="font-semibold text-slate-900" data-agent="cart-item-subtotal">{formatCurrency(subtotal)}</span>
                               </div>
                             </div>
 
@@ -240,6 +254,7 @@ const CartPage = () => {
                                 onClick={() => handleCheckoutSingleProduct(item)}
                                 disabled={actionLoading}
                                 className="inline-flex items-center justify-center rounded-full bg-[var(--brand-blue)] px-5 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-blue-dark)] disabled:opacity-50"
+                                data-agent="cart-buy-now"
                               >
                                 Buy now
                               </button>
@@ -247,6 +262,7 @@ const CartPage = () => {
                                 onClick={() => handleRemove(item._id)}
                                 disabled={actionLoading}
                                 className="inline-flex items-center justify-center gap-2 rounded-full border border-red-200 px-5 py-3 text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                                data-agent="cart-remove"
                               >
                                 <FaTrash size={12} />
                                 Remove
@@ -283,13 +299,14 @@ const CartPage = () => {
 
                 <div className="mt-5 rounded-[26px] bg-[linear-gradient(135deg,#eef4ff_0%,#f8fbff_100%)] px-5 py-5">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Amount payable</p>
-                  <p className="mt-2 font-display text-3xl font-semibold text-slate-900">{formatCurrency(totalPrice)}</p>
+                  <p className="mt-2 font-display text-3xl font-semibold text-slate-900" data-agent="cart-total">{formatCurrency(totalPrice)}</p>
                 </div>
 
                 <button
                   onClick={handleCheckoutAll}
                   disabled={actionLoading}
                   className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[var(--brand-search)] px-6 py-3 text-sm font-extrabold text-[var(--brand-blue)] transition hover:bg-[#ffdb4d] disabled:opacity-50"
+                  data-agent="cart-checkout"
                 >
                   Proceed to checkout
                 </button>
