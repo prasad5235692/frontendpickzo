@@ -155,13 +155,25 @@ const CartPage = () => {
                     Shopping bag overview
                   </h2>
                 </div>
-                <button
-                  onClick={() => navigate('/products')}
-                  className="inline-flex rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-[var(--brand-blue)] transition hover:border-[var(--brand-blue)] hover:bg-[var(--brand-soft)]"
-                  data-agent="cart-continue-shopping"
-                >
-                  Continue shopping
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => navigate('/products')}
+                    className="inline-flex rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-[var(--brand-blue)] transition hover:border-[var(--brand-blue)] hover:bg-[var(--brand-soft)]"
+                    data-agent="cart-continue-shopping"
+                  >
+                    Continue shopping
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCartItems([]);
+                      axios.delete('/cart/clear', { headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+                    }}
+                    className="inline-flex rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-600 transition hover:bg-red-50"
+                    data-agent="cart-clear"
+                  >
+                    Clear cart
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">

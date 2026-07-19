@@ -21,10 +21,15 @@ const Signup = () => {
     }
     setLoading(true);
     try {
-      await axios.post('/auth/register', { name: formData.name, email: formData.email, password: formData.password });
-      setMessage('Account created! Redirecting to login...');
+      const res = await axios.post('/auth/register', { name: formData.name, email: formData.email, password: formData.password });
+      if (res.data?.token) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('userId', res.data.user._id);
+        localStorage.setItem('username', res.data.user.name || res.data.user.email);
+      }
+      setMessage('Account created! Redirecting...');
       setIsError(false);
-      setTimeout(() => navigate('/login'), 1500);
+      setTimeout(() => navigate('/'), 1000);
     } catch (err) {
       setMessage(err.response?.data?.message || err.response?.data?.msg || 'Signup failed. Please try again.');
       setIsError(true);

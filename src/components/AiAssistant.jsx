@@ -106,6 +106,7 @@ const AiAssistant = () => {
   const inputRef = useRef(null);
   const streamRef = useRef(null);
   const handleWorkflowEventRef = useRef(null);
+  const handleActionRequestRef = useRef(null);
   const processedActionIdsRef = useRef(new Set());
   const navigate = useNavigate();
   const location = useLocation();
@@ -306,15 +307,24 @@ const AiAssistant = () => {
         setPendingOptions(null);
         setLoading(false);
         break;
+      case 'workflow.sub_workflow_completed':
+        setPendingOptions(null);
+        setLoading(true);
+        break;
       case 'workflow.state':
         setPendingOptions(event.data?.pendingQuestion || null);
-        setLoading(event.data?.status === 'running' || event.data?.status === 'waiting_for_action');
+        const isWaiting = event.data?.status === 'running' || event.data?.status === 'waiting_for_action';
+        setLoading(isWaiting);
+        if (event.data?.status === 'waiting_for_action' && event.data?.lastActionRequest) {
+          handleActionRequestRef.current?.(sessionState, event.data.lastActionRequest);
+        }
         break;
       default:
         break;
     }
   }, [addMessage, handleActionRequest, refreshLocalSession, replaceMessagesFromHistory]);
   handleWorkflowEventRef.current = handleWorkflowEvent;
+  handleActionRequestRef.current = handleActionRequest;
 
   const handleOptionSelect = async (option) => {
     setPendingOptions(null);

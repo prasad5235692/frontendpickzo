@@ -107,8 +107,12 @@ function updateSessionFromPageData(pageData) {
 
   if (pageData?.type === 'product_detail') {
     updates.selectedProduct = {
+      ...(session.selectedProduct || {}),
       id: pageData.id || session.selectedProduct?.id || null,
       title: pageData.title || session.selectedProduct?.title || null,
+      price: pageData.price || session.selectedProduct?.price || null,
+      stock: pageData.inStock !== undefined ? pageData.inStock : (session.selectedProduct?.stock ?? null),
+      image: pageData.image || session.selectedProduct?.image || null,
     };
   }
 
@@ -407,19 +411,73 @@ async function smartClick(el) {
   await sleep(200);
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const RETRY_MAX = 3;
 const RETRY_DELAY = 1000;
 
-async function withRetry(action, label) {
-  for (let attempt = 1; attempt <= RETRY_MAX; attempt++) {
+const CHECKOUT_SELECTOR_PATTERNS = [
+  { name: 'phone', placeholderIncludes: 'phone' },
+  { name: 'mobile', placeholderIncludes: 'mobile' },
+  { name: 'mobileNumber' },
+  { name: 'contact' },
+  { name: 'contactNumber' },
+  { name: 'billingPhone' },
+  { name: 'shippingPhone' },
+  { name: 'telephone' },
+  { placeholderIncludes: 'phone' },
+  { placeholderIncludes: 'mobile' },
+  { placeholderIncludes: 'contact' },
+  { placeholderIncludes: 'mobile number' },
+];
+
+const CHECKOUT_ADDRESS_PATTERNS = [
+  { placeholderIncludes: 'Address', tag: 'textarea' },
+  { name: 'address', tag: 'textarea' },
+  { name: 'street', tag: 'textarea' },
+  { name: 'address1', tag: 'textarea' },
+  { name: 'shippingAddress', tag: 'textarea' },
+  { name: 'billingAddress', tag: 'textarea' },
+  { name: 'city' },
+  { name: 'state' },
+  { name: 'pincode' },
+  { name: 'zipCode' },
+  { name: 'zip' },
+  { placeholderIncludes: 'address' },
+  { placeholderIncludes: 'street' },
+  { placeholderIncludes: 'city' },
+  { placeholderIncludes: 'state' },
+  { placeholderIncludes: 'pincode' },
+  { placeholderIncludes: 'zip' },
+];
+
+const CHECKOUT_PLACE_ORDER_PATTERNS = [
+  { dataAgent: 'checkout-place-order', text: 'Place Order', tag: 'button' },
+  { text: 'Place Order', tag: 'button' },
+  { text: 'Confirm Order', tag: 'button' },
+  { text: 'Submit Order', tag: 'button' },
+  { text: 'Pay Now', tag: 'button' },
+  { text: 'Confirm', tag: 'button' },
+  { text: 'Order', tag: 'button' },
+];
+
+const CHECKOUT_PAYMENT_PATTERNS = [
+  { dataAgent: 'checkout-payment-input' },
+  { name: 'paymentMethod' },
+  { name: 'payment' },
+  { inputType: 'radio' },
+];
+
+async function withRetry(action, label, retries = RETRY_MAX) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const result = await action();
       return result;
     } catch (err) {
-      if (attempt < RETRY_MAX) {
+      if (attempt < retries) {
         await sleep(RETRY_DELAY);
       } else {
-        throw new Error(`${label} failed after ${RETRY_MAX} attempts: ${err.message}`);
+        throw new Error(`${label} failed after ${retries} attempts: ${err.message}`);
       }
     }
   }
@@ -484,7 +542,7 @@ function matchesTarget(element, target = {}, mode = 'click') {
     return false;
   }
 
-  if (target.name && element.getAttribute('name') !== target.name) {
+  if (target.name && element.getAttribute('name') && element.getAttribute('name') !== target.name) {
     return false;
   }
 
@@ -492,8 +550,12 @@ function matchesTarget(element, target = {}, mode = 'click') {
     return false;
   }
 
-  if (target.inputType && element instanceof HTMLInputElement && element.type !== target.inputType) {
-    return false;
+  if (target.inputType && element instanceof HTMLInputElement) {
+    const expectedType = target.inputType.toLowerCase();
+    const actualType = (element.type || 'text').toLowerCase();
+    if (actualType !== expectedType && !(expectedType === 'tel' && actualType === 'text')) {
+      return false;
+    }
   }
 
   if (target.placeholderIncludes) {
@@ -649,8 +711,26 @@ const Actions = {
   },
 
   async click(target, waitForNavigationOptions) {
+    const tryPatterns = async (patternList) => {
+      for (const pattern of patternList) {
+        const merged = { ...target, ...pattern };
+        const el = await waitForTarget(merged, 'click', 2000);
+        if (el) return el;
+      }
+      return null;
+    };
+
     return withRetry(async () => {
-      const el = await waitForTarget(target, 'click', 7000);
+      let el = await waitForTarget(target, 'click', 7000);
+
+      if (!el) {
+        const isPlaceOrder = target.dataAgent === 'checkout-place-order'
+          || (target.text || '').toLowerCase().includes('place order');
+        if (isPlaceOrder) {
+          el = await tryPatterns(CHECKOUT_PLACE_ORDER_PATTERNS);
+        }
+      }
+
       if (!el) {
         throw new Error('Requested clickable element was not found.');
       }
@@ -665,29 +745,107 @@ const Actions = {
   },
 
   async fillInput(target, value) {
+    const trySelectors = async (patternList) => {
+      for (const pattern of patternList) {
+        const merged = { ...target, ...pattern };
+        const input = await waitForTarget(merged, 'input', 3000);
+        if (input) {
+          input.focus();
+          setElementValue(input, value ?? '');
+          await sleep(200);
+          return readPage();
+        }
+      }
+      return null;
+    };
+
     return withRetry(async () => {
       const input = await waitForTarget(target, 'input', 7000);
-      if (!input) {
-        throw new Error('Requested input field was not found.');
+      if (input) {
+        input.focus();
+        setElementValue(input, value ?? '');
+        await sleep(200);
+        return readPage();
       }
 
-      input.focus();
-      setElementValue(input, value ?? '');
-      await sleep(200);
-      return readPage();
+      const isPhoneField = target.dataAgent === 'checkout-phone-input'
+        || target.name === 'phone'
+        || (target.placeholderIncludes || '').toLowerCase().includes('phone')
+        || (target.placeholderIncludes || '').toLowerCase().includes('mobile');
+      const isAddressField = target.dataAgent === 'checkout-address-input'
+        || target.name === 'address'
+        || (target.placeholderIncludes || '').toLowerCase().includes('address');
+
+      if (isPhoneField) {
+        const result = await trySelectors(CHECKOUT_SELECTOR_PATTERNS);
+        if (result) return result;
+      }
+
+      if (isAddressField) {
+        const result = await trySelectors(CHECKOUT_ADDRESS_PATTERNS);
+        if (result) return result;
+      }
+
+      throw new Error('Requested input field was not found.');
     }, 'fillInput');
   },
 
+  async callApi(url, method, body) {
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+    const response = await fetch(fullUrl, {
+      method: method || 'GET',
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = response.ok ? await response.json().catch(() => ({})) : null;
+    return {
+      success: response.ok,
+      data,
+      status: response.status,
+      pageData: readPage(),
+    };
+  },
+
   async selectDropdown(target, value) {
+    const tryPatterns = async (patternList) => {
+      for (const pattern of patternList) {
+        const merged = { ...target, ...pattern };
+        const candidates = resolveTargetElements(merged, 'choice');
+        const option = candidates.find((el) => {
+          if (el instanceof HTMLInputElement || el instanceof HTMLOptionElement) return el.value === value;
+          if (el instanceof HTMLSelectElement) return el.value === value || isTextMatch(Array.from(el.options).find(o => o.selected)?.textContent || '', value);
+          return isTextMatch(el.textContent || '', value);
+        }) || candidates[0];
+        if (option) return option;
+      }
+      return null;
+    };
+
     return withRetry(async () => {
-      const candidates = resolveTargetElements(target, 'choice');
-      const option = candidates.find((element) => {
+      let candidates = resolveTargetElements(target, 'choice');
+      let option = candidates.find((element) => {
         if (element instanceof HTMLInputElement || element instanceof HTMLOptionElement) {
           return element.value === value;
         }
-
         return isTextMatch(element.textContent || '', value);
       }) || candidates[0];
+
+      if (!option) {
+        const isPaymentField = target.dataAgent === 'checkout-payment-input'
+          || target.name === 'paymentMethod'
+          || target.name === 'payment';
+        if (isPaymentField) {
+          option = await tryPatterns(CHECKOUT_PAYMENT_PATTERNS);
+        }
+        if (!option) {
+          option = await tryPatterns(CHECKOUT_SELECTOR_PATTERNS.map(p => ({ ...p, name: undefined, inputType: undefined })));
+        }
+      }
 
       if (!option) {
         throw new Error(`No selectable option matched "${value}".`);
@@ -716,6 +874,11 @@ const Actions = {
       await waitForPageReady();
       return readPage();
     }, 'readCurrentPage');
+  },
+
+  async waitForPageReady(timeoutMs) {
+    await waitForPageReady(timeoutMs || 7000);
+    return readPage();
   },
 };
 
@@ -763,6 +926,18 @@ function matchesExpectedState(pageData, expected = {}) {
 
   if (expected.verifiedField && expected.value !== undefined) {
     return pageData?.[expected.verifiedField] === expected.value;
+  }
+
+  if (expected.orderCountDelta !== undefined && pageData?.type !== 'order_success') {
+    return false;
+  }
+
+  if (expected.profileFields && typeof expected.profileFields === 'object') {
+    for (const [field, val] of Object.entries(expected.profileFields)) {
+      if (val && pageData?.[field] !== val) {
+        return false;
+      }
+    }
   }
 
   return true;
@@ -859,6 +1034,8 @@ function buildSuccessMessage(tool, args = {}) {
       return `Selected ${args.value || 'the requested option'}.`;
     case 'readCurrentPage':
       return 'Read the current page state.';
+    case 'waitForPageReady':
+      return 'Waited for the page to be fully loaded.';
     default:
       return 'Action completed.';
   }
@@ -897,11 +1074,27 @@ async function executeAction(actionRequest) {
           pageData: await Actions.selectDropdown(args.target || {}, args.value),
           message: buildSuccessMessage('selectDropdown', args),
         };
+      case 'callApi': {
+        const apiResult = await Actions.callApi(args.url, args.method, args.body);
+        return {
+          success: apiResult.success,
+          pageData: apiResult.pageData,
+          apiResult: apiResult.data,
+          apiStatus: apiResult.status,
+          message: apiResult.success ? `API call to ${args.url} succeeded.` : `API call to ${args.url} failed.`,
+        };
+      }
       case 'readCurrentPage':
         return {
           success: true,
           pageData: await Actions.readCurrentPage(),
           message: buildSuccessMessage('readCurrentPage', args),
+        };
+      case 'waitForPageReady':
+        return {
+          success: true,
+          pageData: await Actions.waitForPageReady(args.timeoutMs),
+          message: 'Waited for page to be ready.',
         };
       default:
         throw new Error(`Unknown frontend tool: ${normalizedRequest.tool}`);

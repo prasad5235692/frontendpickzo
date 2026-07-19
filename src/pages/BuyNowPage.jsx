@@ -11,10 +11,41 @@ const PAYMENT_OPTIONS = [
 
 const STEPS = ['Login', 'Delivery Address', 'Order Summary', 'Payment'];
 
+const SESSION_KEY = 'buyNowOrder';
+
+function loadSessionOrder() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveSessionOrder(product, cartItems) {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ product, cartItems }));
+  } catch {}
+}
+
+function clearSessionOrder() {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch {}
+}
+
 const BuyNowPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { product, cartItems } = location.state || {};
+  let { product, cartItems } = location.state || {};
+
+  // Restore from sessionStorage when navigating back (e.g. after profile update)
+  if (!product && !cartItems) {
+    const saved = loadSessionOrder();
+    if (saved) {
+      product = saved.product || null;
+      cartItems = saved.cartItems || null;
+    }
+  } else {
+    // Persist immediately so it survives navigation away and back
+    saveSessionOrder(product, cartItems);
+  }
 
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
@@ -36,7 +67,7 @@ const BuyNowPage = () => {
       } catch {}
     };
     fetchUserProfile();
-  }, []);
+  }, [location.search]);
 
   useEffect(() => {
     const handleAiCheckoutData = (e) => {
@@ -103,6 +134,7 @@ const BuyNowPage = () => {
         };
       }
       const res = await axios.post('/orders/buy', orderData);
+      clearSessionOrder();
       navigate('/order-success', {
         state: {
           orderId: res.data?._id || 'N/A',

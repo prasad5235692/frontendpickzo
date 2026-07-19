@@ -188,6 +188,8 @@ export function readCartPage() {
     Array.from(document.querySelectorAll('button')).some((btn) => btn.textContent.toUpperCase().includes('PROCEED TO CHECKOUT'));
   const hasContinue = !!findAgent('cart-continue-shopping') ||
     Array.from(document.querySelectorAll('button')).some((btn) => btn.textContent.toUpperCase().includes('CONTINUE SHOPPING'));
+  const hasClearCart = !!findAgent('cart-clear') ||
+    Array.from(document.querySelectorAll('button')).some((btn) => btn.textContent.toUpperCase().includes('CLEAR CART'));
 
   const summaryTotal = findAgent('cart-total') ||
                        document.querySelector('[class*="Amount payable"] + p') ||
@@ -202,6 +204,7 @@ export function readCartPage() {
     totalAmount: summaryTotal?.textContent?.trim() || '',
     hasCheckoutButton: hasCheckout,
     hasContinueShoppingButton: hasContinue,
+    hasClearCartButton: hasClearCart,
   };
 }
 
@@ -218,6 +221,9 @@ export function readCheckoutPage() {
 
   let phone = phoneDisplay?.textContent?.trim() || '';
   let address = addressDisplay?.textContent?.trim() || '';
+
+  if (phone === 'No phone number saved') phone = '';
+  if (address === 'No address saved') address = '';
 
   if (phoneInput) phone = phoneInput.value || phone;
   if (addressTextarea) address = addressTextarea.value || address;
