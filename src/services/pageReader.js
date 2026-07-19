@@ -240,7 +240,7 @@ export function readCheckoutPage() {
   paymentRadios.forEach((r) => {
     const label = r.closest('label');
     const labelText = label?.querySelector('p.font-semibold')?.textContent?.trim() || r.value;
-    paymentOptions.push({ value: r.value, label: labelText });
+    paymentOptions.push({ value: r.value, label: labelText, checked: r.checked });
   });
 
   const placeOrderBtn = findAgent('checkout-place-order') ||

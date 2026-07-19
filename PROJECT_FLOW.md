@@ -271,16 +271,30 @@ fillInput(target, value)
   - Input type `tel` → phone matching
   - Input type `textarea` → address/text matching
 
-### select(target, value)
+### selectDropdown(target, value)
 
 ```js
-select(target, value)
+selectDropdown(target, value)
 ```
 - Handles multiple DOM patterns:
   1. **Radio group**: Finds radio input matching value → clicks associated label
   2. **`<select>` element**: Sets value and dispatches change event
   3. **Clickable options**: Finds text-matching element and clicks
-- **Payment matching:** Matches "COD" / "UPI" / "Card" against radio labels or option text
+
+### selectPaymentMethod(value)
+
+```js
+selectPaymentMethod(value)
+```
+- Dedicated tool for payment radio selection
+- Finds radio by:
+  1. `data-agent="checkout-payment-input"` with matching `value` attribute
+  2. Label text content containing the value (case-insensitive)
+  3. Any `input[type="radio"][name="payment"]` with matching value
+- Clicks the radio if not already checked
+- Verifies `checked=true` after click
+- Returns updated page data
+- **Retries:** 3 attempts with 1s delay
 
 ### readPage()
 
@@ -385,12 +399,24 @@ After every action, the executor:
 | `hasPhone` | Whether phone field has value |
 | `hasAddress` | Whether address field has value |
 | `paymentMethod` | Currently selected payment radio |
-| `paymentOptions[]` | Available payment method radio labels |
+| `paymentOptions[]` | Array of `{ label, value, checked }` — always present (may be empty). Read from DOM radios. |
 | `canEditPhone` | Edit button presence for phone |
 | `canEditAddress` | Edit button presence for address |
 | `isEditingPhone` | Whether phone edit mode is active |
 | `isEditingAddress` | Whether address edit mode is active |
 | `hasPlaceOrderButton` | Presence of Place Order button |
+
+**`paymentOptions` format:**
+```json
+[
+  { "label": "Cash on Delivery", "value": "COD", "checked": false },
+  { "label": "UPI", "value": "UPI", "checked": false },
+  { "label": "Credit Card", "value": "Card", "checked": true }
+]
+```
+- `label` — Display text (used in chatbot buttons)
+- `value` — Radio button value (used for DOM selection)
+- `checked` — Whether this radio is currently selected
 
 ### readProfilePage() (/profile)
 
@@ -553,6 +579,7 @@ useEffect for AI events:
 |-------|---------------|----------|--------|
 | `aiCheckoutData` | AI executor (fillInput / selectDropdown) | BuyNowPage | `{ phone, address, paymentMethod }` |
 | `aiPlaceOrder` | AI executor (click place-order) | BuyNowPage | `{}` triggers `handlePlaceOrder()` |
+| `aiSelectPayment` | AI executor (selectPaymentMethod) | BuyNowPage | `{ paymentMethod }` confirms the selected method |
 
 ### Checkout Flow (User path)
 
@@ -560,10 +587,13 @@ useEffect for AI events:
 1. User lands on /buy-now
 2. Profile loaded → phone + address displayed
 3. User can edit phone/address inline (open edit → type → save)
-4. User selects payment method (COD/UPI/Card)
-5. User clicks Place Order
-6. POST /api/orders/buy with { items, address, paymentMethod, totalAmount }
-7. On success → navigate to /order-success with order data (state)
+4. Payment options dynamically read from DOM via readCheckoutPage()
+5. AI renders payment options as chatbot buttons (Cash on Delivery / UPI / Card)
+6. User clicks a payment option in the chatbot
+7. AI calls selectPaymentMethod(value) → finds radio → clicks → verifies checked=true
+8. AI clicks Place Order
+9. POST /api/orders/buy with { items, address, paymentMethod, totalAmount }
+10. On success → navigate to /order-success with order data (state)
 ```
 
 ---

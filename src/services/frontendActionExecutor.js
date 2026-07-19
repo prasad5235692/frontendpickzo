@@ -869,6 +869,51 @@ const Actions = {
     }, 'selectDropdown');
   },
 
+  async selectPaymentMethod(value) {
+    return withRetry(async () => {
+      const normalizedValue = String(value || '').toLowerCase().trim();
+      let radio = null;
+
+      const candidates = resolveTargetElements({ dataAgent: 'checkout-payment-input', inputType: 'radio' }, 'choice');
+      for (const el of candidates) {
+        if (String(el.value).toLowerCase() === normalizedValue) {
+          radio = el;
+          break;
+        }
+        const label = el.closest('label');
+        if (label && normalizeString(label.textContent || '').toLowerCase().includes(normalizedValue)) {
+          radio = el;
+          break;
+        }
+      }
+
+      if (!radio) {
+        const fallbacks = document.querySelectorAll('input[type="radio"][name="payment"]');
+        for (const el of fallbacks) {
+          if (String(el.value).toLowerCase() === normalizedValue) {
+            radio = el;
+            break;
+          }
+        }
+      }
+
+      if (!radio) {
+        throw new Error(`Payment option "${value}" not found on the page.`);
+      }
+
+      if (!radio.checked) {
+        await smartClick(radio);
+      }
+
+      await sleep(200);
+      const pageData = readPage();
+      if (pageData?.paymentMethod !== radio.value) {
+        throw new Error(`Payment option "${value}" was selected but verification failed.`);
+      }
+      return pageData;
+    }, 'selectPaymentMethod');
+  },
+
   async readCurrentPage() {
     return withRetry(async () => {
       await waitForPageReady();
@@ -1017,6 +1062,12 @@ function normalizeLegacyRequest(actionRequest) {
         },
         expected: actionRequest.expected || {},
       };
+    case 'selectPaymentMethod':
+      return {
+        tool: 'selectPaymentMethod',
+        args: { value: actionRequest.args?.value },
+        expected: actionRequest.expected || {},
+      };
     default:
       return actionRequest;
   }
@@ -1032,6 +1083,8 @@ function buildSuccessMessage(tool, args = {}) {
       return 'Filled the requested field.';
     case 'selectDropdown':
       return `Selected ${args.value || 'the requested option'}.`;
+    case 'selectPaymentMethod':
+      return `Selected payment method: ${args.value || ''}.`;
     case 'readCurrentPage':
       return 'Read the current page state.';
     case 'waitForPageReady':
@@ -1073,6 +1126,12 @@ async function executeAction(actionRequest) {
           success: true,
           pageData: await Actions.selectDropdown(args.target || {}, args.value),
           message: buildSuccessMessage('selectDropdown', args),
+        };
+      case 'selectPaymentMethod':
+        return {
+          success: true,
+          pageData: await Actions.selectPaymentMethod(args.value),
+          message: buildSuccessMessage('selectPaymentMethod', args),
         };
       case 'callApi': {
         const apiResult = await Actions.callApi(args.url, args.method, args.body);
